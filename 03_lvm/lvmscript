@@ -1,0 +1,781 @@
+Script started on 2020-02-16 17:40:16+0500
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ vagrant ssh
+]0;vagrant@lvm:~[?1034h[vagrant@lvm ~]$ sudop[K passwd root
+Changing password for user root.
+New password: 
+BAD PASSWORD: The password is shorter than 8 characters
+Retype new password: 
+passwd: all authentication tokens updated successfully.
+]0;vagrant@lvm:~[vagrant@lvm ~]$ su
+Password: 
+]0;vagrant@lvm:/home/vagrant[?1034h[root@lvm vagrant]# lsv[Kblk 
+NAME                    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                       8:0    0   40G  0 disk 
+├─sda1                    8:1    0    1M  0 part 
+├─sda2                    8:2    0    1G  0 part /boot
+└─sda3                    8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00 253:0    0 37.5G  0 lvm  /
+  └─VolGroup00-LogVol01 253:1    0  1.5G  0 lvm  [SWAP]
+sdb                       8:16   0   10G  0 disk 
+sdc                       8:32   0    2G  0 disk 
+sdd                       8:48   0    1G  0 disk 
+sde                       8:64   0    1G  0 disk 
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# pvc
+pvchange  pvck      pvcreate  
+[root@lvm vagrant]# pvc[K[K[Kvgdisplay 
+  --- Volume group ---
+  VG Name               VolGroup00
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               <38.97 GiB
+  PE Size               32.00 MiB
+  Total PE              1247
+  Alloc PE / Size       1247 / <38.97 GiB
+  Free  PE / Size       0 / 0   
+  VG UUID               SA8LTU-F2yz-FEV1-RdgT-hw0Z-iRxh-yHFKuU
+   
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# pvc
+pvchange  pvck      pvcreate  
+[root@lvm vagrant]# pvcreate /dev/sda3 [K[K[Kb
+  Physical volume "/dev/sdb" successfully created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# vgc
+vgcfgbackup   vgcfgrestore  vgchange      vgck          vgconvert     vgcreate      
+[root@lvm vagrant]# vgcreate vg_root /dev/sda3 [K[K[Kb
+  Volume group "vg_root" successfully created
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# lvcreate -n lv_root -l +100%FREE /dev/vg_root
+  Logical volume "lv_root" created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mkdi[K[Kf
+mkfifo       mkfs         mkfs.btrfs   mkfs.cramfs  mkfs.ext2    mkfs.ext3    mkfs.ext4    mkfs.minix   mkfs.xfs     
+[root@lvm vagrant]# mkfs/[K.xfs /dev/vg
+vga_arbiter  vg_root/     
+[root@lvm vagrant]# mkfs.xfs /dev/vg
+vga_arbiter  vg_root/     
+[root@lvm vagrant]# mkfs.xfs /dev/vg_root/lv_root .[K[K
+meta-data=/dev/vg_root/lv_root   isize=512    agcount=4, agsize=655104 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=2620416, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mount /dev/v
+vcs          vcs2         vcs4         vcs6         vcsa1        vcsa3        vcsa5        vfio/        vg_root/     vhost-net    
+vcs1         vcs3         vcs5         vcsa         vcsa2        vcsa4        vcsa6        vga_arbiter  vhci         
+[root@lvm vagrant]# mount /dev/vg
+vga_arbiter  vg_root/     
+[root@lvm vagrant]# mount /dev/vg_root/lv_root /mnt/[K
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]#  xfsdump -J - /dev/VolGroup00/LogVol00 | xfsrestore -J - /mnt[1P
+xfsrestore: using file dump (drive_simple) strategy
+xfsrestore: version 3.1.7 (dump format 3.0)
+xfsdump: using file dump (drive_simple) strategy
+xfsdump: version 3.1.7 (dump format 3.0)
+xfsdump: level 0 dump of lvm:/
+xfsdump: dump date: Sun Feb 16 12:42:58 2020
+xfsdump: session id: 9379c65f-4ea3-44c4-8e9f-4a9e33b33c5f
+xfsdump: session label: ""
+xfsrestore: searching media for dump
+xfsdump: ino map phase 1: constructing initial dump list
+xfsdump: ino map phase 2: skipping (no pruning necessary)
+xfsdump: ino map phase 3: skipping (only one dump stream)
+xfsdump: ino map construction complete
+xfsdump: estimated dump size: 813971456 bytes
+xfsdump: creating dump session media file 0 (media 0, file 0)
+xfsdump: dumping ino map
+xfsdump: dumping directories
+xfsrestore: examining media file 0
+xfsrestore: dump description: 
+xfsrestore: hostname: lvm
+xfsrestore: mount point: /
+xfsrestore: volume: /dev/mapper/VolGroup00-LogVol00
+xfsrestore: session time: Sun Feb 16 12:42:58 2020
+xfsrestore: level: 0
+xfsrestore: session label: ""
+xfsrestore: media label: ""
+xfsrestore: file system id: b60e9498-0baa-4d9f-90aa-069048217fee
+xfsrestore: session id: 9379c65f-4ea3-44c4-8e9f-4a9e33b33c5f
+xfsrestore: media id: 77ffb33f-10f5-4f83-83a6-f9c74adc4ab8
+xfsrestore: searching media for directory dump
+xfsrestore: reading directories
+xfsdump: dumping non-directory files
+xfsrestore: 3120 directories and 26979 entries processed
+xfsrestore: directory post-processing
+xfsrestore: restoring non-directory files
+xfsdump: ending media file
+xfsdump: media file size 785832344 bytes
+xfsdump: dump size (non-dir files) : 770644616 bytes
+xfsdump: dump complete: 43 seconds elapsed
+xfsdump: Dump Status: SUCCESS
+xfsrestore: restore complete: 45 seconds elapsed
+xfsrestore: Restore Status: SUCCESS
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# for i in /proc/ /sys/ /dev/ /run/ /boot/; do mount --bind $i /mnt/$i; done
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# chr[K
+chacl       chardetect  chcon       chfn        chkconfig   chmod       chpasswd    chronyd     chrt        chvt        
+chage       chattr      chcpu       chgrp       chmem       chown       chronyc     chroot      chsh        
+[root@lvm vagrant]# chro
+chronyc  chronyd  chroot   
+[root@lvm vagrant]# chroot /m
+media/ mnt/   
+[root@lvm vagrant]# chroot /mnt/
+]0;vagrant@lvm:/[?1034h[root@lvm /]# grub2-mk
+grub2-mkconfig         grub2-mkfont           grub2-mkimage          grub2-mklayout         grub2-mknetdir         grub2-mkpasswd-pbkdf2  grub2-mkrelpath        grub2-mkrescue         grub2-mkstandalone
+[root@lvm /]# grub2-mkconfig -o /boot/grub2.[K/grub
+grub.cfg  grubenv   
+[root@lvm /]# grub2-mkconfig -o /boot/grub2/grub/[K.cfg [K
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.10.0-862.2.3.el7.x86_64
+Found initrd image: /boot/initramfs-3.10.0-862.2.3.el7.x86_64.img
+done
+]0;vagrant@lvm:/[root@lvm /]# cd /boot ; for i in `ls initramfs-*img`; do dracut -v $i `echo $i|sed "s/initramfs-//g;
+> s/.img//g"` --force; done
+Executing: /usr/bin/dracut -v initramfs-3.10.0-862.2.3.el7.x86_64.img 3.10.0-862.2.3.el7.x86_64 --force
+dracut module 'busybox' will not be installed, because command 'busybox' could not be found!
+dracut module 'crypt' will not be installed, because command 'cryptsetup' could not be found!
+dracut module 'dmraid' will not be installed, because command 'dmraid' could not be found!
+dracut module 'dmsquash-live-ntfs' will not be installed, because command 'ntfs-3g' could not be found!
+dracut module 'multipath' will not be installed, because command 'multipath' could not be found!
+dracut module 'busybox' will not be installed, because command 'busybox' could not be found!
+dracut module 'crypt' will not be installed, because command 'cryptsetup' could not be found!
+dracut module 'dmraid' will not be installed, because command 'dmraid' could not be found!
+dracut module 'dmsquash-live-ntfs' will not be installed, because command 'ntfs-3g' could not be found!
+dracut module 'multipath' will not be installed, because command 'multipath' could not be found!
+*** Including module: bash ***
+*** Including module: nss-softokn ***
+*** Including module: i18n ***
+*** Including module: drm ***
+*** Including module: plymouth ***
+*** Including module: dm ***
+Skipping udev rule: 64-device-mapper.rules
+Skipping udev rule: 60-persistent-storage-dm.rules
+Skipping udev rule: 55-dm.rules
+*** Including module: kernel-modules ***
+Omitting driver floppy
+*** Including module: lvm ***
+Skipping udev rule: 64-device-mapper.rules
+Skipping udev rule: 56-lvm.rules
+Skipping udev rule: 60-persistent-storage-lvm.rules
+*** Including module: qemu ***
+*** Including module: resume ***
+*** Including module: rootfs-block ***
+*** Including module: terminfo ***
+*** Including module: udev-rules ***
+Skipping udev rule: 40-redhat-cpu-hotplug.rules
+Skipping udev rule: 91-permissions.rules
+*** Including module: biosdevname ***
+*** Including module: systemd ***
+*** Including module: usrmount ***
+*** Including module: base ***
+*** Including module: fs-lib ***
+*** Including module: shutdown ***
+*** Including modules done ***
+*** Installing kernel module dependencies and firmware ***
+*** Installing kernel module dependencies and firmware done ***
+*** Resolving executable dependencies ***
+*** Resolving executable dependencies done***
+*** Hardlinking files ***
+*** Hardlinking files done ***
+*** Stripping files ***
+*** Stripping files done ***
+*** Generating early-microcode cpio image contents ***
+*** No early-microcode cpio image needed ***
+*** Store current command line parameters ***
+*** Creating image file ***
+*** Creating image file done ***
+*** Creating initramfs image file '/boot/initramfs-3.10.0-862.2.3.el7.x86_64.img' done ***
+]0;vagrant@lvm:/boot[root@lvm boot]# b[Knao[Kno /boot/f[Kgrub2//[Kgrub/[K.cfg config-3.10.0-862.2.3.el7.x86_64 [K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K
+[?1049h[1;56r(B[m[4l[?7h[?12l[?25h[?1h=[?1h=[?1h=[39;49m[39;49m(B[m[H[2J(B[0;7m  GNU nano 2.3.1                                                           File: /boot/grub2/grub.cfg                                                                                                                            [3;1H(B[m#[4d# DO NOT EDIT THIS FILE[5d#[6d# It is automatically generated by grub2-mkconfig using templates[7d# from /etc/grub.d and settings from /etc/default/grub[8d#[10d### BEGIN /etc/grub.d/00_header ###[11dset pager=1[13dif [ -s $prefix/grubenv ]; then[14;3Hload_env[15dfi[16dif [ "${next_entry}" ] ; then[17;4Hset default="${next_entry}"[18;4Hset next_entry=[19;4Hsave_env next_entry[20;4Hset boot_once=true[21delse[22dset default="${saved_entry}"[23dfi[25dif [ x"${feature_menuentry_id}" = xy ]; then[26;3Hmenuentry_id_option="--id"[27delse[28dmenuentry_id_option=""[29dfi[31dexport menuentry_id_option[33dif [ "${prev_saved_entry}" ]; then[34;3Hset saved_entry="${prev_saved_entry}"[35;3Hsave_env saved_entry[36;3Hset prev_saved_entry=[37;3Hsave_env prev_saved_entry[38;3Hset boot_once=true[39dfi[41dfunction savedefault {[42;3Hif [ -z "${boot_once}" ]; then[43;5Hsaved_entry="${chosen}"[44;5Hsave_env saved_entry[45;3Hfi[46d}[48dfunction load_video {[49;3Hif [ x$feature_all_video_module = xy ]; then[50;5Hinsmod all_video[51;3Helse[52dinsmod efi_gop[53;5Hinsmod efi_uga[54;104H(B[0;7m[ Read 127 lines ][55d^G(B[m Get Help[55;38H(B[0;7m^O(B[m WriteOut[55;75H(B[0;7m^R(B[m Read File[55;112H(B[0;7m^Y(B[m Prev Page[55;149H(B[0;7m^K(B[m Cut Text[55;186H(B[0;7m^C(B[m Cur Pos[56d(B[0;7m^X(B[m Exit[56;38H(B[0;7m^J(B[m Justify[56;75H(B[0;7m^W(B[m Where Is[56;112H(B[0;7m^V(B[m Next Page[56;149H(B[0;7m^U(B[m UnCut Text[56;186H(B[0;7m^T(B[m To Spell[3d[54d(B[0;7mSearch:                                                                                                                                                                                                                          [55;39HY(B[m First Line[55;76H(B[0;7mT(B[m Go To Line[55;113H(B[0;7mW(B[m Beg of Par[55;149H(B[0;7mM-J(B[m FullJstify[55;186H(B[0;7mM-B(B[m Backwards[56;2H(B[0;7mC(B[m Cancel[56;39H(B[0;7mV(B[m Last Line[56;76H(B[0;7mR(B[m Replace [56;113H(B[0;7mO(B[m End of Par[56;149H(B[0;7mM-C(B[m Case Sens[56;186H(B[0;7mM-R(B[m Regexp[K[54;9H(B[0;7mr(B[m(B[0;7md(B[m(B[0;7m.(B[m(B[0;7ml(B[m(B[0;7mv(B[m(B[0;7mm(B[m(B[0;7m.(B[m(B[0;7ml(B[m(B[0;7mv(B[m[3d[K[4d### BEGIN /etc/grub.d/01_users ###[5dif [ -f ${prefix}/user.cfg ]; then[6d  source ${prefix}/user.cfg[K[7d  if [ -n "${GRUB2_PASSWORD}" ]; then[K[8d    set superusers="root"[9;5Hexport superusers[10d    password_pbkdf2 root ${GRUB2_PASSWORD}[11d  fi[K[12dfi[13d### END /etc/grub.d/01_users ###[14d[K[15d### BEGIN /etc/grub.d/10_linux ###[16dmenuentry 'CentOS Linux (3.10.0-862.2.3.el7.x86_64) 7 (Core)' --class centos --class gnu-linux --class gnu --class os --unrestricted $menuentry_id_option 'gnulinux-3.10.0-862.2.3.el7.x86_64-advanced-fd45e25a-1a18-4e70-95a5-f$[17;8H[1K	load_video[K[18;8H[1K	set gfxpayload=keep[19;8H[1K	insmod gzio[K[20;8H[1K	insmod part_msdos[21;8H[1K	insmod xfs[22;8H[1K	set root='hd0,msdos2'[K[23;8H[1K	if [ x$feature_platform_search_hint = xy ]; then[24;11Hsearch --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos2 --hint-efi=hd0,msdos2 --hint-baremetal=ahci0,msdos2  570897ca-e759-4c81-90cf-389da6eee4cc[25;8H[1K	else[K[26;10H[1K search --no-floppy --fs-uuid --set=root 570897ca-e759-4c81-90cf-389da6eee4cc[27;8H[1K	fi[28;8H[1K	linux16 /vmlinuz-3.10.0-862.2.3.el7.x86_64 root=/dev/mapper/vg_root-lv_root ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=VolGroup00/LogVol$[29;8H[1K	initrd16 /initramfs-3.10.0-862.2.3.el7.x86_64.img[30d}[31dif [ "x$default" = 'CentOS Linux (3.10.0-862.2.3.el7.x86_64) 7 (Core)' ]; then default='Advanced options for CentOS Linux>CentOS Linux (3.10.0-862.2.3.el7.x86_64) 7 (Core)'; fi;[32d### END /etc/grub.d/10_linux ###[33d[K[34d### BEGIN /etc/grub.d/20_linux_xen ###[K[35d### END /etc/grub.d/20_linux_xen ###[36d[K[37d### BEGIN /etc/grub.d/20_ppc_terminfo ###[38d### END /etc/grub.d/20_ppc_terminfo ###[39d[K[40d### BEGIN /etc/grub.d/30_os-prober ###[41d### END /etc/grub.d/30_os-prober ###[42d[K[43d### BEGIN /etc/grub.d/40_custom ###[44d# This file provides an easy way to add custom menu entries.  Simply type the[45d# menu entries you want to add after this comment.  Be careful not to change[46d# the 'exec tail' line above.[47d### END /etc/grub.d/40_custom ###[48d[K[49d### BEGIN /etc/grub.d/41_custom ###[K[50dif [ -f  ${config_directory}/custom.cfg ]; then[51;3Hsource ${config_directory}/custom.cfg[52delif [ -z "${config_directory}" -a -f  $prefix/custom.cfg ]; then[53;3Hsource $prefix/custom.cfg;[54d[K[55;39H(B[0;7mO(B[m WriteOut  [55;76H(B[0;7mR(B[m Read File [55;113H(B[0;7mY(B[m Prev Page [55;149H(B[0;7m^K(B[m Cut Text   [55;186H(B[0;7m^C(B[m Cur Pos[K[56;2H(B[0;7mX(B[m Exit  [56;39H(B[0;7mJ(B[m Justify  [56;76H(B[0;7mW(B[m Where Is[56;113H(B[0;7mV(B[m Next Page [56;149H(B[0;7m^U(B[m UnCut Text[56;186H(B[0;7m^T(B[m To Spell[28;198Hrd	lvm.lv=	olGroup	0/LogVo$LogVol00 rd.lvm.lv=VolGroup00/LogVol01 rhgb quiet[K[8G	0 rd	[1K	linux16 /vmlinuz-3.10.0-862.2.3.el7.x86_64 root=/dev/mapper/vg_root-lv_root ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=VolGroup00/LogVol$[28;224H[Z0/LogVo$LogVol00 rd.lvm.lv=VolGroup00/LogVol01 rhgb quiet[K[8G	0	[1K	linux16 /vmlinuz-3.10.0-862.2.3.el7.x86_64 root=/dev/mapper/vg_root-lv_root ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=VolGroup00/LogVol$[28;224HLogVo$LogVol00 rd.lvm.lv=VolGroup00/LogVol01 rhgb quiet[K[8G	0[1;216H(B[0;7mModified[28;8H(B[m[1P	[1P[1K	linux16 /vmlinuz-3.10.0-862.2.3.el7.x86_64 root=/dev/mapper/vg_root-lv_root ro no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto rd.lvm.lv=VolGroup00/LogVo $[28;224H r rd rd. rd.l[220G rd.lv[219G rd.lvm[218G[Z rd.lvm.[28;217H rd.lvm.l[28;216H rd.lvm.lv[28;215H rd.lvm.lv=[28;214H rd.lvm.lv=V[28;213H rd.lvm.lv=Vo[28;212H rd.lvm.lv=Vol[28;211H rd.lvm.lv=VolG[28;210H[Z rd.lvm.lv=VolGr[28;209H rd.lvm.lv=VolGro[28;208H rd.lvm.lv=VolGrou[28;207H rd.lvm.lv=VolGroup[28;206H rd.lvm.lv=VolGroup0[28;205H rd.lvm.lv=VolGroup0[28;204H rd.lvm.lv=VolGroup00/[28;203H rd.lvm.lv=VolGroup00/L[28;202H[Z rd.lvm.lv=VolGroup00/Lo[28;201H rd.lvm.lv=VolGroup00/Log[28;200H rd.lvm.lv=VolGroup00/LogV[28;199H rd.lvm.lv=VolGroup00/LogVo[28;198Hrd.lvm.lv=vg_root/lv_root r $root rd.lvm.lv=VolGroup00/LogVol01 rhgb quiet[K[8G	.lvm.[54d(B[0;7mSave modified buffer (ANSWERING "No" WILL DESTROY CHANGES) ?                                                                                                                                                                     [55;1H Y(B[m Yes[K[56d(B[0;7m N(B[m No  [56;17H(B[0;7m^C(B[m Cancel[K[54;62H(B[0;7mFile Name to Write: /boot/grub2/grub.cfg                    [55d^G(B[m Get Help[55;57H(B[0;7mM-D(B[m DOS Format[55;113H(B[0;7mM-A(B[m Append[55;169H(B[0;7mM-B(B[m Backup File[56d(B[0;7m^C(B[m Cancel	         [56;57H(B[0;7mM-M(B[m Mac Format[56;113H(B[0;7mM-P(B[m Prepend[54;41H[55d[39;49m(B[m[J[1;216H(B[0;7m        [54;103H(B[m[1K (B[0;7m[ Wrote 127 lines ](B[m[K[56;225H[56;1H[?1049l[?1l>]0;vagrant@lvm:/boot[root@lvm boot]# reboot
+Running in chroot, ignoring request.
+]0;vagrant@lvm:/boot[root@lvm boot]# lbl[K[Ksblk 
+NAME                    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                       8:0    0   40G  0 disk 
+├─sda1                    8:1    0    1M  0 part 
+├─sda2                    8:2    0    1G  0 part /boot
+└─sda3                    8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00 253:0    0 37.5G  0 lvm  
+  └─VolGroup00-LogVol01 253:1    0  1.5G  0 lvm  [SWAP]
+sdb                       8:16   0   10G  0 disk 
+└─vg_root-lv_root       253:2    0   10G  0 lvm  /
+sdc                       8:32   0    2G  0 disk 
+sdd                       8:48   0    1G  0 disk 
+sde                       8:64   0    1G  0 disk 
+]0;vagrant@lvm:/boot[root@lvm boot]# exit
+exit
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# rebooty[K
+Connection to 127.0.0.1 closed by remote host.
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ vagrant ssh
+Last login: Sun Feb 16 12:40:29 2020 from 10.0.2.2
+]0;vagrant@lvm:~[?1034h[vagrant@lvm ~]$ su
+Password: 
+]0;vagrant@lvm:/home/vagrant[?1034h[root@lvm vagrant]# lsblk 
+NAME                    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                       8:0    0   10G  0 disk 
+└─vg_root-lv_root       253:0    0   10G  0 lvm  /
+sdb                       8:16   0    2G  0 disk 
+sdc                       8:32   0    1G  0 disk 
+sdd                       8:48   0    1G  0 disk 
+sde                       8:64   0   40G  0 disk 
+├─sde1                    8:65   0    1M  0 part 
+├─sde2                    8:66   0    1G  0 part /boot
+└─sde3                    8:67   0   39G  0 part 
+  ├─VolGroup00-LogVol01 253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol00 253:2    0 37.5G  0 lvm  
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]#  lvremove /dev/VolGroup00/LogVol00[C[1P
+Do you really want to remove active logical volume VolGroup00/LogVol00? [y/n]: y
+  Logical volume "LogVol00" successfully removed
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# lvcreate -n VolGroup00/LogVol00 -L 8G /dev/VolGroup00
+WARNING: xfs signature detected on /dev/VolGroup00/LogVol00 at offset 0. Wipe it? [y/n]: y
+  Wiping xfs signature on /dev/VolGroup00/LogVol00.
+  Logical volume "LogVol00" created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mkfs.xfs /dev/VolGroup00/LogVol00
+meta-data=/dev/VolGroup00/LogVol00 isize=512    agcount=4, agsize=524288 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=2097152, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mount /dev/VolGroup00/LogVol00 /mnt
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# xfsdump -J - /dev/vg_root/lv_root | xfsrestore -J - /mnt
+xfsrestore: using file dump (drive_simple) strategy
+xfsrestore: version 3.1.7 (dump format 3.0)
+xfsdump: using file dump (drive_simple) strategy
+xfsdump: version 3.1.7 (dump format 3.0)
+xfsdump: level 0 dump of lvm:/
+xfsdump: dump date: Sun Feb 16 12:51:58 2020
+xfsdump: session id: 97fbc751-317c-4848-ac6d-8aab82a18e1f
+xfsdump: session label: ""
+xfsrestore: searching media for dump
+xfsdump: ino map phase 1: constructing initial dump list
+xfsdump: ino map phase 2: skipping (no pruning necessary)
+xfsdump: ino map phase 3: skipping (only one dump stream)
+xfsdump: ino map construction complete
+xfsdump: estimated dump size: 812760640 bytes
+xfsdump: creating dump session media file 0 (media 0, file 0)
+xfsdump: dumping ino map
+xfsdump: dumping directories
+xfsrestore: examining media file 0
+xfsrestore: dump description: 
+xfsrestore: hostname: lvm
+xfsrestore: mount point: /
+xfsrestore: volume: /dev/mapper/vg_root-lv_root
+xfsrestore: session time: Sun Feb 16 12:51:58 2020
+xfsrestore: level: 0
+xfsrestore: session label: ""
+xfsrestore: media label: ""
+xfsrestore: file system id: fd45e25a-1a18-4e70-95a5-f39ce4b2787f
+xfsrestore: session id: 97fbc751-317c-4848-ac6d-8aab82a18e1f
+xfsrestore: media id: 93574d40-ccf1-4798-a0e9-51c72b87cd1b
+xfsrestore: searching media for directory dump
+xfsrestore: reading directories
+xfsdump: dumping non-directory files
+xfsrestore: 3124 directories and 26984 entries processed
+xfsrestore: directory post-processing
+xfsrestore: restoring non-directory files
+xfsdump: ending media file
+xfsdump: media file size 784505432 bytes
+xfsdump: dump size (non-dir files) : 769314024 bytes
+xfsdump: dump complete: 19 seconds elapsed
+xfsdump: Dump Status: SUCCESS
+xfsrestore: restore complete: 20 seconds elapsed
+xfsrestore: Restore Status: SUCCESS
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# for i in /proc/ /sys/ /dev/ /run/ /boot/; do mount --bind $i /mnt/$i; done
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# chroot [K[Kt [K[K[K
+chronyc  chronyd  chroot   
+[root@lvm vagrant]# chroot ./mn[K[K[K[K/mnt/
+]0;vagrant@lvm:/[?1034h[root@lvm /]#  grub2-mkconfig -o /boot/grub2/grub.cfg[1P
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-3.10.0-862.2.3.el7.x86_64
+Found initrd image: /boot/initramfs-3.10.0-862.2.3.el7.x86_64.img
+done
+]0;vagrant@lvm:/[root@lvm /]# cd /boot ; for i in `ls initramfs-*img`; do dracut -v $i `echo $i|sed "s/initramfs-//g;
+> s/.img//g"` --force; done
+Executing: /usr/bin/dracut -v initramfs-3.10.0-862.2.3.el7.x86_64.img 3.10.0-862.2.3.el7.x86_64 --force
+dracut module 'busybox' will not be installed, because command 'busybox' could not be found!
+dracut module 'crypt' will not be installed, because command 'cryptsetup' could not be found!
+dracut module 'dmraid' will not be installed, because command 'dmraid' could not be found!
+dracut module 'dmsquash-live-ntfs' will not be installed, because command 'ntfs-3g' could not be found!
+dracut module 'multipath' will not be installed, because command 'multipath' could not be found!
+dracut module 'busybox' will not be installed, because command 'busybox' could not be found!
+dracut module 'crypt' will not be installed, because command 'cryptsetup' could not be found!
+dracut module 'dmraid' will not be installed, because command 'dmraid' could not be found!
+dracut module 'dmsquash-live-ntfs' will not be installed, because command 'ntfs-3g' could not be found!
+dracut module 'multipath' will not be installed, because command 'multipath' could not be found!
+*** Including module: bash ***
+*** Including module: nss-softokn ***
+*** Including module: i18n ***
+*** Including module: drm ***
+*** Including module: plymouth ***
+*** Including module: dm ***
+Skipping udev rule: 64-device-mapper.rules
+Skipping udev rule: 60-persistent-storage-dm.rules
+Skipping udev rule: 55-dm.rules
+*** Including module: kernel-modules ***
+Omitting driver floppy
+*** Including module: lvm ***
+Skipping udev rule: 64-device-mapper.rules
+Skipping udev rule: 56-lvm.rules
+Skipping udev rule: 60-persistent-storage-lvm.rules
+*** Including module: qemu ***
+*** Including module: resume ***
+*** Including module: rootfs-block ***
+*** Including module: terminfo ***
+*** Including module: udev-rules ***
+Skipping udev rule: 40-redhat-cpu-hotplug.rules
+Skipping udev rule: 91-permissions.rules
+*** Including module: biosdevname ***
+*** Including module: systemd ***
+*** Including module: usrmount ***
+*** Including module: base ***
+*** Including module: fs-lib ***
+*** Including module: shutdown ***
+*** Including modules done ***
+*** Installing kernel module dependencies and firmware ***
+*** Installing kernel module dependencies and firmware done ***
+*** Resolving executable dependencies ***
+*** Resolving executable dependencies done***
+*** Hardlinking files ***
+*** Hardlinking files done ***
+*** Stripping files ***
+*** Stripping files done ***
+*** Generating early-microcode cpio image contents ***
+*** No early-microcode cpio image needed ***
+*** Store current command line parameters ***
+*** Creating image file ***
+*** Creating image file done ***
+*** Creating initramfs image file '/boot/initramfs-3.10.0-862.2.3.el7.x86_64.img' done ***
+]0;vagrant@lvm:/boot[root@lvm boot]# pvcreate /dev/sdc /dev/sdd
+  Physical volume "/dev/sdc" successfully created.
+  Physical volume "/dev/sdd" successfully created.
+]0;vagrant@lvm:/boot[root@lvm boot]# vgr[Kcreate /[Kvg_var /dev/sdc /dev/sdd
+  Volume group "vg_var" successfully created
+]0;vagrant@lvm:/boot[root@lvm boot]# vgs
+  VG         #PV #LV #SN Attr   VSize   VFree  
+  VolGroup00   1   2   0 wz--n- <38.97g <29.47g
+  vg_root      1   1   0 wz--n- <10.00g      0 
+  vg_var       2   0   0 wz--n-   1.99g   1.99g
+]0;vagrant@lvm:/boot[root@lvm boot]# lvce[Kreate -L 950M =[K-m1 -n lv_var vg_var
+  Rounding up size to full physical extent 952.00 MiB
+  Logical volume "lv_var" created.
+]0;vagrant@lvm:/boot[root@lvm boot]# mkdi[K[Kd[Kf
+mkfifo       mkfs         mkfs.btrfs   mkfs.cramfs  mkfs.ext2    mkfs.ext3    mkfs.ext4    mkfs.minix   mkfs.xfs     
+[root@lvm boot]# mkfs.x[Kext3[K4 /dev/vg
+vga_arbiter  vg_root/     vg_var/      
+[root@lvm boot]# mkfs.ext4 /dev/vg_var/lv_var 
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+60928 inodes, 243712 blocks
+12185 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=249561088
+8 block groups
+32768 blocks per group, 32768 fragments per group
+7616 inodes per group
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376
+
+Allocating group tables: 0/8   done                            
+Writing inode tables: 0/8   done                            
+Creating journal (4096 blocks): done
+Writing superblocks and filesystem accounting information: 0/8   done
+
+]0;vagrant@lvm:/boot[root@lvm boot]# mount /dev/v
+vcs          vcs2         vcs4         vcs6         vcsa1        vcsa3        vcsa5        vfio/        vg_root/     vhci         
+vcs1         vcs3         vcs5         vcsa         vcsa2        vcsa4        vcsa6        vga_arbiter  vg_var/      vhost-net    
+[root@lvm boot]# mount /dev/vg_
+vg_root/ vg_var/  
+[root@lvm boot]# mount /dev/vg_
+vg_root/ vg_var/  
+[root@lvm boot]# mount /dev/vg_var/lv_var /mnt/[K
+]0;vagrant@lvm:/boot[root@lvm boot]# cp -aR /var/* /mnt/ # rsync -avHPSAX /var/ /mnt/
+^C
+]0;vagrant@lvm:/boot[root@lvm boot]# cp -aR /var/* /mnt/ # rsync -avHPSAX /var/ /mnt/[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K
+cp: overwrite ‘/mnt/cache/ldconfig/aux-cache’? y
+cp: overwrite ‘/mnt/cache/yum/x86_64/7/base/gen/primary_db.sqlite’? ^C
+]0;vagrant@lvm:/boot[root@lvm boot]# rsync -avHPSAX /var/ /mnt/
+sending incremental file list
+./
+.updated
+            163 100%    0.00kB/s    0:00:00              163 100%    0.00kB/s    0:00:00 (xfr#1, ir-chk=1024/1026)
+lock -> ../run/lock
+mail -> spool/mail
+run -> ../run
+lib/
+lib/NetworkManager/
+lib/NetworkManager/NetworkManager-intern.conf
+            939 100%  458.50kB/s    0:00:00              939 100%  458.50kB/s    0:00:00 (xfr#2, ir-chk=1012/1099)
+lib/NetworkManager/NetworkManager.state
+             68 100%   33.20kB/s    0:00:00               68 100%   33.20kB/s    0:00:00 (xfr#3, ir-chk=1011/1099)
+lib/NetworkManager/dhclient-5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03-eth0.lease
+            866 100%  422.85kB/s    0:00:00              866 100%  422.85kB/s    0:00:00 (xfr#4, ir-chk=1010/1099)
+lib/NetworkManager/dhclient-a1ca0cc8-3dd0-3fc4-9161-64be6c96a305-eth1.lease
+            602 100%  195.96kB/s    0:00:00              602 100%  195.96kB/s    0:00:00 (xfr#5, ir-chk=1009/1099)
+lib/NetworkManager/dhclient-eth0.conf
+            424 100%  138.02kB/s    0:00:00              424 100%  138.02kB/s    0:00:00 (xfr#6, ir-chk=1008/1099)
+lib/NetworkManager/secret_key
+             32 100%   10.42kB/s    0:00:00               32 100%   10.42kB/s    0:00:00 (xfr#7, ir-chk=1007/1099)
+lib/NetworkManager/timestamps
+            157 100%   38.33kB/s    0:00:00              157 100%   38.33kB/s    0:00:00 (xfr#8, ir-chk=1006/1099)
+lib/alternatives/
+lib/alternatives/ld
+             57 100%   13.92kB/s    0:00:00               57 100%   13.92kB/s    0:00:00 (xfr#9, ir-chk=1005/1099)
+lib/alternatives/libnssckbi.so.x86_64
+            101 100%   19.73kB/s    0:00:00              101 100%   19.73kB/s    0:00:00 (xfr#10, ir-chk=1004/1099)
+lib/alternatives/mta
+            689 100%  134.57kB/s    0:00:00              689 100%  134.57kB/s    0:00:00 (xfr#11, ir-chk=1003/1099)
+lib/authconfig/
+lib/authconfig/last/
+lib/authconfig/last/authconfig
+              0 100%    0.00kB/s    0:00:00 (xfr#12, ir-chk=1014/1112)
+lib/authconfig/last/libuser.conf
+          2,391 100%  389.16kB/s    0:00:00            2,391 100%  389.16kB/s    0:00:00 (xfr#13, ir-chk=1013/1112)
+lib/authconfig/last/login.defs
+          2,028 100%  330.08kB/s    0:00:00            2,028 100%  330.08kB/s    0:00:00 (xfr#14, ir-chk=1012/1112)
+lib/authconfig/last/openldap.conf
+            363 100%   50.64kB/s    0:00:00              363 100%   50.64kB/s    0:00:00 (xfr#15, ir-chk=1011/1112)
+lib/chrony/
+lib/dbus/
+lib/dhclient/
+lib/games/
+lib/gssproxy/
+lib/gssproxy/default.sock
+lib/gssproxy/clients/
+lib/gssproxy/rcache/
+lib/hyperv/
+lib/initramfs/
+lib/logrotate/
+lib/machines/
+lib/misc/
+lib/misc/postfix.aliasesdb-stamp
+              0 100%    0.00kB/s    0:00:00 (xfr#16, ir-chk=1007/1112)
+lib/nfs/
+lib/nfs/etab
+              0 100%    0.00kB/s    0:00:00 (xfr#17, ir-chk=1006/1112)
+lib/nfs/rmtab
+              0 100%    0.00kB/s    0:00:00 (xfr#18, ir-chk=1005/1112)
+lib/nfs/state
+              0 100%    0.00kB/s    0:00:00 (xfr#19, ir-chk=1004/1112)
+lib/nfs/xtab
+              0 100%    0.00kB/s    0:00:00 (xfr#20, ir-chk=1003/1112)
+lib/nfs/rpc_pipefs/
+lib/nfs/statd/
+lib/nfs/statd/sm.bak/
+lib/nfs/statd/sm/
+lib/nfs/v4recovery/
+lib/os-prober/
+lib/plymouth/
+lib/plymouth/boot-duration
+          1,401 100%  171.02kB/s    0:00:00            1,401 100%  171.02kB/s    0:00:00 (xfr#21, ir-chk=1007/1122)
+lib/polkit-1/
+lib/polkit-1/localauthority/
+lib/polkit-1/localauthority/10-vendor.d/
+lib/polkit-1/localauthority/20-org.d/
+lib/polkit-1/localauthority/30-site.d/
+lib/polkit-1/localauthority/50-local.d/
+lib/polkit-1/localauthority/90-mandatory.d/
+lib/postfix/
+lib/postfix/master.lock
+             33 100%    3.58kB/s    0:00:00               33 100%    3.58kB/s    0:00:00 (xfr#22, ir-chk=1000/1122)
+lib/rpcbind/
+lib/rpm-state/
+lib/rpm/
+lib/rpm/.rpm.lock
+              0 100%    0.00kB/s    0:00:00 (xfr#23, ir-chk=1018/1142)
+lib/rpm/Basenames
+         32,768   2%    3.12MB/s    0:00:00        1,544,192 100%   50.78MB/s    0:00:00 (xfr#24, ir-chk=1017/1142)
+lib/rpm/Conflictname
+          8,192 100%  275.86kB/s    0:00:00            8,192 100%  275.86kB/s    0:00:00 (xfr#25, ir-chk=1016/1142)
+lib/rpm/Dirnames
+         32,768   7%    1.04MB/s    0:00:00          417,792 100%   12.07MB/s    0:00:00 (xfr#26, ir-chk=1015/1142)
+lib/rpm/Group
+          8,192 100%  235.29kB/s    0:00:00            8,192 100%  235.29kB/s    0:00:00 (xfr#27, ir-chk=1014/1142)
+lib/rpm/Installtid
+         12,288 100%  352.94kB/s    0:00:00           12,288 100%  352.94kB/s    0:00:00 (xfr#28, ir-chk=1013/1142)
+lib/rpm/Name
+         24,576 100%  705.88kB/s    0:00:00           24,576 100%  705.88kB/s    0:00:00 (xfr#29, ir-chk=1012/1142)
+lib/rpm/Obsoletename
+          8,192 100%  228.57kB/s    0:00:00            8,192 100%  228.57kB/s    0:00:00 (xfr#30, ir-chk=1011/1142)
+lib/rpm/Packages
+         32,768   0%  914.29kB/s    0:00:47       34,570,240  79%   25.74MB/s    0:00:00       43,675,648 100%   18.63MB/s    0:00:02 (xfr#31, ir-chk=1010/1142)
+lib/rpm/Providename
+         32,768   1%   33.33kB/s    0:00:51          131,072   7%   35.03kB/s    0:00:46        1,765,376 100%  470.01kB/s    0:00:03 (xfr#32, ir-chk=1009/1142)
+lib/rpm/Requirename
+         32,768  22%    2.08MB/s    0:00:00          143,360 100%    8.54MB/s    0:00:00 (xfr#33, ir-chk=1008/1142)
+lib/rpm/Sha1header
+         32,768  80%    1.84MB/s    0:00:00           40,960 100%    2.30MB/s    0:00:00 (xfr#34, ir-chk=1007/1142)
+lib/rpm/Sigmd5
+         24,576 100%    1.30MB/s    0:00:00           24,576 100%    1.30MB/s    0:00:00 (xfr#35, ir-chk=1006/1142)
+lib/rpm/Triggername
+          8,192 100%  444.44kB/s    0:00:00            8,192 100%  444.44kB/s    0:00:00 (xfr#36, ir-chk=1005/1142)
+lib/rsyslog/
+lib/rsyslog/imjournal.state
+            120 100%    6.51kB/s    0:00:00              120 100%    6.51kB/s    0:00:00 (xfr#37, ir-chk=1004/1142)
+lib/stateless/
+lib/stateless/state/
+lib/stateless/writable/
+lib/systemd/
+lib/systemd/random-seed
+          1,024 100%   55.56kB/s    0:00:00            1,024 100%   55.56kB/s    0:00:00 (xfr#38, ir-chk=1011/1152)
+lib/systemd/catalog/
+lib/systemd/catalog/database
+         32,768  55%    1.64MB/s    0:00:00           58,947 100%    2.96MB/s    0:00:00 (xfr#39, ir-chk=1008/1152)
+lib/systemd/coredump/
+lib/tuned/
+local/
+log/
+log/boot.log
+             12 100%    0.00kB/s    0:00:00               12 100%    0.00kB/s    0:00:00 (xfr#40, to-chk=84/4183)
+log/btmp
+              0 100%    0.00kB/s    0:00:00 (xfr#41, to-chk=83/4183)
+log/cron
+            360 100%  351.56kB/s    0:00:00              360 100%  351.56kB/s    0:00:00 (xfr#42, to-chk=82/4183)
+log/dmesg
+         32,768  86%   31.25MB/s    0:00:00           38,087 100%   36.32MB/s    0:00:00 (xfr#43, to-chk=81/4183)
+log/dmesg.old
+         32,768  87%   31.25MB/s    0:00:00           37,583 100%   35.84MB/s    0:00:00 (xfr#44, to-chk=80/4183)
+log/grubby_prune_debug
+            193 100%  188.48kB/s    0:00:00              193 100%  188.48kB/s    0:00:00 (xfr#45, to-chk=79/4183)
+log/lastlog
+         32,768  11%   10.42MB/s    0:00:00          292,292 100%   55.75MB/s    0:00:00 (xfr#46, to-chk=78/4183)
+log/maillog
+            384 100%   75.00kB/s    0:00:00              384 100%   75.00kB/s    0:00:00 (xfr#47, to-chk=77/4183)
+log/messages
+         32,768  17%    5.21MB/s    0:00:00          185,233 100%   25.24MB/s    0:00:00 (xfr#48, to-chk=76/4183)
+log/secure
+          4,911 100%  685.13kB/s    0:00:00            4,911 100%  685.13kB/s    0:00:00 (xfr#49, to-chk=75/4183)
+log/spooler
+              0 100%    0.00kB/s    0:00:00 (xfr#50, to-chk=74/4183)
+log/tallylog
+              0 100%    0.00kB/s    0:00:00 (xfr#51, to-chk=73/4183)
+log/wtmp
+          3,840 100%  468.75kB/s    0:00:00            3,840 100%  468.75kB/s    0:00:00 (xfr#52, to-chk=72/4183)
+log/yum.log
+          2,275 100%  277.71kB/s    0:00:00            2,275 100%  277.71kB/s    0:00:00 (xfr#53, to-chk=71/4183)
+log/anaconda/
+log/anaconda/anaconda.log
+         11,552 100%    1.38MB/s    0:00:00           11,552 100%    1.38MB/s    0:00:00 (xfr#54, to-chk=64/4183)
+log/anaconda/ifcfg.log
+          6,214 100%  606.84kB/s    0:00:00            6,214 100%  606.84kB/s    0:00:00 (xfr#55, to-chk=63/4183)
+log/anaconda/journal.log
+         32,768   2%    3.12MB/s    0:00:00        1,396,107 100%   57.89MB/s    0:00:00 (xfr#56, to-chk=62/4183)
+log/anaconda/ks-script-Vef3rE.log
+            192 100%    7.81kB/s    0:00:00              192 100%    7.81kB/s    0:00:00 (xfr#57, to-chk=61/4183)
+log/anaconda/ks-script-l275pX.log
+              0 100%    0.00kB/s    0:00:00 (xfr#58, to-chk=60/4183)
+log/anaconda/ks-script-mOoaAX.log
+              0 100%    0.00kB/s    0:00:00 (xfr#59, to-chk=59/4183)
+log/anaconda/packaging.log
+         32,768  21%    1.30MB/s    0:00:00          155,565 100%    5.71MB/s    0:00:00 (xfr#60, to-chk=58/4183)
+log/anaconda/program.log
+         32,768  98%    1.20MB/s    0:00:00           33,364 100%    1.22MB/s    0:00:00 (xfr#61, to-chk=57/4183)
+log/anaconda/storage.log
+         32,768  36%    1.16MB/s    0:00:00           90,422 100%    3.19MB/s    0:00:00 (xfr#62, to-chk=56/4183)
+log/anaconda/syslog
+         32,768  15%    1.12MB/s    0:00:00          213,412 100%    6.78MB/s    0:00:00 (xfr#63, to-chk=55/4183)
+log/audit/
+log/audit/audit.log
+         32,768  10%    1.01MB/s    0:00:00          298,206 100%    8.36MB/s    0:00:00 (xfr#64, to-chk=54/4183)
+log/chrony/
+log/qemu-ga/
+log/rhsm/
+log/tuned/
+log/tuned/tuned.log
+          3,038 100%   87.26kB/s    0:00:00            3,038 100%   87.26kB/s    0:00:00 (xfr#65, to-chk=53/4183)
+nis/
+opt/
+preserve/
+spool/
+spool/anacron/
+spool/anacron/cron.daily
+              0 100%    0.00kB/s    0:00:00 (xfr#66, to-chk=46/4183)
+spool/anacron/cron.monthly
+              0 100%    0.00kB/s    0:00:00 (xfr#67, to-chk=45/4183)
+spool/anacron/cron.weekly
+              0 100%    0.00kB/s    0:00:00 (xfr#68, to-chk=44/4183)
+spool/cron/
+spool/lpd/
+spool/mail/
+spool/mail/rpc
+              0 100%    0.00kB/s    0:00:00 (xfr#69, to-chk=43/4183)
+spool/mail/vagrant
+              0 100%    0.00kB/s    0:00:00 (xfr#70, to-chk=42/4183)
+spool/plymouth/
+spool/postfix/
+spool/postfix/active/
+spool/postfix/bounce/
+spool/postfix/corrupt/
+spool/postfix/defer/
+spool/postfix/deferred/
+spool/postfix/flush/
+spool/postfix/hold/
+spool/postfix/incoming/
+spool/postfix/maildrop/
+spool/postfix/pid/
+spool/postfix/pid/master.pid
+             33 100%    0.92kB/s    0:00:00               33 100%    0.92kB/s    0:00:00 (xfr#71, to-chk=27/4183)
+spool/postfix/private/
+spool/postfix/private/anvil
+spool/postfix/private/bounce
+spool/postfix/private/defer
+spool/postfix/private/discard
+spool/postfix/private/error
+spool/postfix/private/lmtp
+spool/postfix/private/local
+spool/postfix/private/proxymap
+spool/postfix/private/proxywrite
+spool/postfix/private/relay
+spool/postfix/private/retry
+spool/postfix/private/rewrite
+spool/postfix/private/scache
+spool/postfix/private/smtp
+spool/postfix/private/tlsmgr
+spool/postfix/private/trace
+spool/postfix/private/verify
+spool/postfix/private/virtual
+spool/postfix/public/
+spool/postfix/public/cleanup
+spool/postfix/public/flush
+spool/postfix/public/pickup
+spool/postfix/public/qmgr
+spool/postfix/public/showq
+spool/postfix/saved/
+spool/postfix/trace/
+tmp/
+tmp/systemd-private-85620c9fc230449fbd84f25e130f1e5e-chronyd.service-xH6r9r/
+tmp/systemd-private-85620c9fc230449fbd84f25e130f1e5e-chronyd.service-xH6r9r/tmp/
+tmp/systemd-private-fce1e7c262d243d7859304d722e3db92-chronyd.service-NxZcD1/
+tmp/systemd-private-fce1e7c262d243d7859304d722e3db92-chronyd.service-NxZcD1/tmp/
+yp/
+
+sent 50,685,469 bytes  received 2,468 bytes  6,758,391.60 bytes/sec
+total size is 133,587,175  speedup is 2.64
+]0;vagrant@lvm:/boot[root@lvm boot]# rsync -avHPSAX /var/ /mnt/
+sending incremental file list
+
+sent 142,969 bytes  received 556 bytes  95,683.33 bytes/sec
+total size is 133,587,175  speedup is 930.76
+]0;vagrant@lvm:/boot[root@lvm boot]# mkdir /tmp/oldvar && mv /var/* /tmp/oldvar
+]0;vagrant@lvm:/boot[root@lvm boot]# /[Ku[Kump[Kount /mnt/[K
+]0;vagrant@lvm:/boot[root@lvm boot]# mount /dev/vg_var/lv_var /var
+]0;vagrant@lvm:/boot[root@lvm boot]# echo "`blkid | grep var: | awk '{print $2}'` /var ext4 defaults 0 0" >> /etc/fstab
+]0;vagrant@lvm:/boot[root@lvm boot]# exit
+exit
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# rebi[Koot 
+Connection to 127.0.0.1 closed by remote host.
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ vagrant ssh
+Last login: Sun Feb 16 12:50:34 2020 from 10.0.2.2
+]0;vagrant@lvm:~[?1034h[vagrant@lvm ~]$ su
+Password: 
+]0;vagrant@lvm:/home/vagrant[?1034h[root@lvm vagrant]# lsv[Kblk 
+NAME                     MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                        8:0    0   40G  0 disk 
+├─sda1                     8:1    0    1M  0 part 
+├─sda2                     8:2    0    1G  0 part /boot
+└─sda3                     8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00  253:0    0    8G  0 lvm  /
+  └─VolGroup00-LogVol01  253:1    0  1.5G  0 lvm  [SWAP]
+sdb                        8:16   0   10G  0 disk 
+└─vg_root-lv_root        253:7    0   10G  0 lvm  
+sdc                        8:32   0    2G  0 disk 
+sdd                        8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_0  253:2    0    4M  0 lvm  
+│ └─vg_var-lv_var        253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0 253:3    0  952M  0 lvm  
+  └─vg_var-lv_var        253:6    0  952M  0 lvm  /var
+sde                        8:64   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1  253:4    0    4M  0 lvm  
+│ └─vg_var-lv_var        253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1 253:5    0  952M  0 lvm  
+  └─vg_var-lv_var        253:6    0  952M  0 lvm  /var
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]#  lvremove /dev/vg_root/lv_root[C[1P
+Do you really want to remove active logical volume vg_root/lv_root? [y/n]: y
+  Logical volume "lv_root" successfully removed
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# vgre
+vgreduce  vgremove  vgrename  
+[root@lvm vagrant]# vgre
+vgreduce  vgremove  vgrename  
+[root@lvm vagrant]# vgrem,[Kove de[K[K[K d[K/dev?[K[K/[Kv/[K[K[K[K[K[K[K[K[K[K[K[K[K[Kvgre
+vgreduce  vgremove  vgrename  
+[root@lvm vagrant]# vgremove /dev/vg_root
+  Volume group "vg_root" successfully removed
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# pvremove /dev/sdb
+  Labels on physical volume "/dev/sdb" successfully wiped.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]#  lvcreate -n LogVol_Home -L 2G /dev/VolGroup00[1P
+  Logical volume "LogVol_Home" created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mkfs.xfs /dev/VolGroup00/LogVol_Home
+meta-data=/dev/VolGroup00/LogVol_Home isize=512    agcount=4, agsize=131072 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=524288, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mount /dev/VolGroup00/LogVol_Home /mnt/
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# cp -aR /home/* /mnt/
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# rm -rf /home/*
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# umount /mnt/
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mount /dev/VolGroup00/LogVol_Home /home/
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# echo "`blkid | grep Home | awk '{print $2}'` /home xfs defaults 0 0" >> /etc/fstab
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# touch /home/file{1..20}
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# ls .[K/b[Khome/
+file1  file10  file11  file12  file13  file14  file15  file16  file17  file18  file19  file2  file20  file3  file4  file5  file6  file7  file8  file9  [0m[38;5;27mvagrant[0m
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# lvcreate -L 100MB -s -n home_snap /dev/VolGroup00/LogVol_Home
+  Rounding up size to full physical extent 128.00 MiB
+  Logical volume "home_snap" created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# rm -f /home/file{11..20}
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# um,[Kount /home/
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# lvconvert --merge /dev/VolGroup00/home_snap
+  Merging of volume VolGroup00/home_snap started.
+  VolGroup00/LogVol_Home: Merged: 100.00%
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mo [Kunt /home/[K
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# ls ./[K[K/home/
+file1  file10  file11  file12  file13  file14  file15  file16  file17  file18  file19  file2  file20  file3  file4  file5  file6  file7  file8  file9  [0m[38;5;27mvagrant[0m
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# ls [Kblk 
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:7    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+sdc                          8:32   0    2G  0 disk 
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:2    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:3    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:4    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:5    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# exo[Kit
+exit
+]0;vagrant@lvm:~[vagrant@lvm ~]$ exit
+logout
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ exit
+
+Script done on 2020-02-16 18:04:18+0500

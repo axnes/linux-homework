@@ -1,0 +1,426 @@
+Script started on 2020-02-16 22:16:50+0500
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ vagrant ssh
+Last login: Sun Feb 16 13:05:04 2020 from 10.0.2.2
+]0;vagrant@lvm:~[?1034h[vagrant@lvm ~]$ su
+Password: 
+]0;vagrant@lvm:/home/vagrant[?1034h[root@lvm vagrant]# lsblk 
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:7    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+sdc                          8:32   0    2G  0 disk 
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:2    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:3    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:4    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:5    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# pvcreate /dev/sdv[K[Kdb
+  Physical volume "/dev/sdb" successfully created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# vgcreate vg_opt /dev/sd
+/dev/sda3  /dev/sdd   /dev/sde   
+[root@lvm vagrant]# vgcreate vg_opt /dev/sdb
+  Volume group "vg_opt" successfully created
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# lvcreate -L 8G -n lv_opt vg_opt
+WARNING: xfs signature detected on /dev/vg_opt/lv_opt at offset 0. Wipe it? [y/n]: y
+  Wiping xfs signature on /dev/vg_opt/lv_opt.
+  Logical volume "lv_opt" created.
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# pd[K[Kmkl[Kfs.
+mkfs.btrfs   mkfs.cramfs  mkfs.ext2    mkfs.ext3    mkfs.ext4    mkfs.minix   mkfs.xfs     
+[root@lvm vagrant]# mkfs.
+mkfs.btrfs   mkfs.cramfs  mkfs.ext2    mkfs.ext3    mkfs.ext4    mkfs.minix   mkfs.xfs     
+[root@lvm vagrant]# mkfs.btrfs /dev/p[Kvg_
+vg_opt/ vg_var/ 
+[root@lvm vagrant]# mkfs.btrfs /dev/vg_opt/lv_opt 
+btrfs-progs v4.9.1
+See http://btrfs.wiki.kernel.org for more information.
+
+Label:              (null)
+UUID:               687856fb-e474-416a-bf7a-3091b58dcc35
+Node size:          16384
+Sector size:        4096
+Filesystem size:    8.00GiB
+Block group profiles:
+  Data:             single            8.00MiB
+  Metadata:         DUP             409.56MiB
+  System:           DUP               8.00MiB
+SSD detected:       no
+Incompat features:  extref, skinny-metadata
+Number of devices:  1
+Devices:
+   ID        SIZE  PATH
+    1     8.00GiB  /dev/vg_opt/lv_opt
+
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# mount /dev/v
+vcs          vcs2         vcs4         vcs6         vcsa1        vcsa3        vcsa5        vfio/        vg_opt/      vhci         
+vcs1         vcs3         vcs5         vcsa         vcsa2        vcsa4        vcsa6        vga_arbiter  vg_var/      vhost-net    
+[root@lvm vagrant]# mount /dev/v
+vcs          vcs2         vcs4         vcs6         vcsa1        vcsa3        vcsa5        vfio/        vg_opt/      vhci         
+vcs1         vcs3         vcs5         vcsa         vcsa2        vcsa4        vcsa6        vga_arbiter  vg_var/      vhost-net    
+[root@lvm vagrant]# mount /dev/vg
+vga_arbiter  vg_opt/      vg_var/      
+[root@lvm vagrant]# mount /dev/vg_
+vg_opt/ vg_var/ 
+[root@lvm vagrant]# mount /dev/vg_opt/lv_opt /opt/[K
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# ls 
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# cd /
+]0;vagrant@lvm:/[root@lvm /]# ls
+[0m[38;5;51mbin[0m  [38;5;27mboot[0m  [38;5;27mdev[0m  [38;5;27metc[0m  [38;5;27mhome[0m  [38;5;51mlib[0m  [38;5;51mlib64[0m  [38;5;27mmedia[0m  [38;5;27mmnt[0m  [38;5;27mopt[0m  [38;5;27mproc[0m  [38;5;27mroot[0m  [38;5;27mrun[0m  [38;5;51msbin[0m  [38;5;27msrv[0m  [38;5;27msys[0m  [48;5;10;38;5;16mtmp[0m  [38;5;27musr[0m  [38;5;27mvagrant[0m  [38;5;27mvar[0m
+]0;vagrant@lvm:/[root@lvm /]# blko[Kid 
+/dev/sda2: UUID="570897ca-e759-4c81-90cf-389da6eee4cc" TYPE="xfs" 
+/dev/sda3: UUID="vrrtbx-g480-HcJI-5wLn-4aOf-Olld-rC03AY" TYPE="LVM2_member" 
+/dev/sdd: UUID="jhbZTc-8Txd-WR70-X7gI-s5dv-4pt4-52MEXa" TYPE="LVM2_member" 
+/dev/mapper/VolGroup00-LogVol00: UUID="da9f0ab6-99bb-4ffe-8122-650bb6d64410" TYPE="xfs" 
+/dev/sde: UUID="6sean3-1Ws0-ccHB-3F9q-RM2C-13s2-xNXzpf" TYPE="LVM2_member" 
+/dev/mapper/VolGroup00-LogVol01: UUID="c39c5bed-f37c-4263-bee8-aeb6a6659d7b" TYPE="swap" 
+/dev/mapper/vg_var-lv_var_rimage_0: UUID="858638bd-ddca-42d9-8068-8032ef74289b" TYPE="ext4" 
+/dev/mapper/vg_var-lv_var_rimage_1: UUID="858638bd-ddca-42d9-8068-8032ef74289b" TYPE="ext4" 
+/dev/mapper/vg_var-lv_var: UUID="858638bd-ddca-42d9-8068-8032ef74289b" TYPE="ext4" 
+/dev/mapper/VolGroup00-LogVol_Home: UUID="9bfcb508-ae89-4cad-9bbb-093c74118b34" TYPE="xfs" 
+/dev/sdb: UUID="8ex5Ki-r4yR-agpW-kKxI-FJBq-5su6-lRHrF5" TYPE="LVM2_member" 
+/dev/mapper/vg_opt-lv_opt: UUID="687856fb-e474-416a-bf7a-3091b58dcc35" UUID_SUB="5661fa0c-83a2-416d-a1ee-16aaae083939" TYPE="btrfs" 
+]0;vagrant@lvm:/[root@lvm /]# nao[Kno /etc/fstab 
+[?1049h[1;46r(B[m[4l[?7h[?12l[?25h[?1h=[?1h=[?1h=[39;49m[39;49m(B[m[H[2J(B[0;7m  GNU nano 2.3.1                                                              File: /etc/fstab                                                                                                                                  [4;1H(B[m#[5d# /etc/fstab[6d# Created by anaconda on Sat May 12 18:50:26 2018[7d#[8d# Accessible filesystems, by reference, are maintained under '/dev/disk'[9d# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info[10d#[11d/dev/mapper/VolGroup00-LogVol00 /[11;57Hxfs     defaults[11;81H0 0[12dUUID=570897ca-e759-4c81-90cf-389da6eee4cc /boot[12;67Hxfs     defaults[12;91H0 0[13d/dev/mapper/VolGroup00-LogVol01 swap[13;57Hswap    defaults[13;81H0 0[14dUUID="858638bd-ddca-42d9-8068-8032ef74289b" /var ext4 defaults 0 0[15dUUID="9bfcb508-ae89-4cad-9bbb-093c74118b34" /home xfs defaults 0 0[44;104H(B[0;7m[ Read 13 lines ][45d^G(B[m Get Help[45;38H(B[0;7m^O(B[m WriteOut[45;75H(B[0;7m^R(B[m Read File[45;112H(B[0;7m^Y(B[m Prev Page[45;149H(B[0;7m^K(B[m Cut Text[45;186H(B[0;7m^C(B[m Cur Pos[46d(B[0;7m^X(B[m Exit[46;38H(B[0;7m^J(B[m Justify[46;75H(B[0;7m^W(B[m Where Is[46;112H(B[0;7m^V(B[m Next Page[46;149H(B[0;7m^U(B[m UnCut Text[46;186H(B[0;7m^T(B[m To Spell[3d[4d[5d[6d[7d[8d[9d[10d[11d[12d[13d[14d[15d[16d[1;215H(B[0;7mModified[16d(B[mUUID="687856fb-e474-416a-bf7a-3091b58dcc35"[44d[K[16;44H /opt / btf rfs / d dea g faults	00  0[44d(B[0;7mSave modified buffer (ANSWERING "No" WILL DESTROY CHANGES) ?                                                                                                                                                                    [45;1H Y(B[m Yes[K[46d(B[0;7m N(B[m No  [46;17H(B[0;7m^C(B[m Cancel[K[44;62H(B[0;7mFile Name to Write: /etc/fstab                              [45d^G(B[m Get Help[45;57H(B[0;7mM-D(B[m DOS Format[45;113H(B[0;7mM-A(B[m Append[45;169H(B[0;7mM-B(B[m Backup File[46d(B[0;7m^C(B[m Cancel	         [46;57H(B[0;7mM-M(B[m Mac Format[46;113H(B[0;7mM-P(B[m Prepend[44;31H[45d[39;49m(B[m[J[1;215H(B[0;7m        [44;103H(B[m[1K (B[0;7m[ Wrote 14 lines ](B[m[K[46;224H[46;1H[?1049l[?1l>]0;vagrant@lvm:/[root@lvm /]# lvdisplay 
+  --- Logical volume ---
+  LV Path                /dev/VolGroup00/LogVol01
+  LV Name                LogVol01
+  VG Name                VolGroup00
+  LV UUID                IAjIC6-ScnM-tvH6-7BTy-TN31-hd82-bgDSzd
+  LV Write Access        read/write
+  LV Creation host, time localhost.localdomain, 2018-05-12 18:50:25 +0000
+  LV Status              available
+  # open                 2
+  LV Size                1.50 GiB
+  Current LE             48
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:1
+   
+  --- Logical volume ---
+  LV Path                /dev/VolGroup00/LogVol00
+  LV Name                LogVol00
+  VG Name                VolGroup00
+  LV UUID                mUUyeg-wSob-DyLN-TIn2-oeFX-lgWn-zqGThe
+  LV Write Access        read/write
+  LV Creation host, time lvm, 2020-02-16 12:51:24 +0000
+  LV Status              available
+  # open                 1
+  LV Size                8.00 GiB
+  Current LE             256
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:0
+   
+  --- Logical volume ---
+  LV Path                /dev/VolGroup00/LogVol_Home
+  LV Name                LogVol_Home
+  VG Name                VolGroup00
+  LV UUID                CJa5YC-E8V5-eIbC-qFcZ-d5GW-gppQ-cHGznu
+  LV Write Access        read/write
+  LV Creation host, time lvm, 2020-02-16 13:01:20 +0000
+  LV Status              available
+  # open                 1
+  LV Size                2.00 GiB
+  Current LE             64
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:7
+   
+  --- Logical volume ---
+  LV Path                /dev/vg_var/lv_var
+  LV Name                lv_var
+  VG Name                vg_var
+  LV UUID                t2h0Q2-J1IN-iUwb-7avf-Khjo-KS41-XWkoUK
+  LV Write Access        read/write
+  LV Creation host, time lvm, 2020-02-16 12:54:22 +0000
+  LV Status              available
+  # open                 1
+  LV Size                952.00 MiB
+  Current LE             238
+  Mirrored volumes       2
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:6
+   
+  --- Logical volume ---
+  LV Path                /dev/vg_opt/lv_opt
+  LV Name                lv_opt
+  VG Name                vg_opt
+  LV UUID                RYsuxE-FHkw-Qv9i-rulU-qUsi-Aeri-DUCtOJ
+  LV Write Access        read/write
+  LV Creation host, time lvm, 2020-02-16 13:38:55 +0000
+  LV Status              available
+  # open                 1
+  LV Size                8.00 GiB
+  Current LE             2048
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:8
+   
+]0;vagrant@lvm:/[root@lvm /]# ls[K[Kdf -h
+Filesystem                          Size  Used Avail Use% Mounted on
+/dev/mapper/VolGroup00-LogVol00     8.0G  813M  7.2G  10% /
+devtmpfs                            110M     0  110M   0% /dev
+tmpfs                               118M     0  118M   0% /dev/shm
+tmpfs                               118M  4.6M  114M   4% /run
+tmpfs                               118M     0  118M   0% /sys/fs/cgroup
+/dev/sda2                          1014M   61M  954M   6% /boot
+/dev/mapper/vg_var-lv_var           922M  137M  721M  16% /var
+tmpfs                                24M     0   24M   0% /run/user/0
+/dev/mapper/VolGroup00-LogVol_Home  2.0G   33M  2.0G   2% /home
+tmpfs                                24M     0   24M   0% /run/user/1000
+/dev/mapper/vg_opt-lv_opt           8.0G   17M  7.2G   1% /opt
+]0;vagrant@lvm:/[root@lvm /]# vgex[K[Kextend /de[K[K[Kvg)[K_
+vg_opt  vg_var  
+[root@lvm /]# vgextend vg_opt /dev/sdc
+  Physical volume "/dev/sdc" successfully created.
+  Volume group "vg_opt" successfully extended
+]0;vagrant@lvm:/[root@lvm /]# lsblk 
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:7    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+└─vg_opt-lv_opt            253:8    0    8G  0 lvm  /opt
+sdc                          8:32   0    2G  0 disk 
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:2    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:3    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:4    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:5    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+]0;vagrant@lvm:/[root@lvm /]# lvcreate -L 8M =[K-n lv_cah[Kche_meta vfg[K[Kg_opt /dev/sds[Kc
+  Logical volume "lv_cache_meta" created.
+]0;vagrant@lvm:/[root@lvm /]# lvcrs[Keate -L 1G -n lv_cahche[K[K[K[Kche vg_opt /dev/sdc
+  Logical volume "lv_cache" created.
+]0;vagrant@lvm:/[root@lvm /]# lvconvert --ty[e[K[Kpe cache-pool --poolmetadata vg_opt/lv_cah[Kche_meta vg_opt/[K/lv+[K_cache
+  WARNING: Converting vg_opt/lv_cache and vg_opt/lv_cache_meta to cache pool's data and metadata volumes with metadata wiping.
+  THIS WILL DESTROY CONTENT OF LOGICAL VOLUME (filesystem etc.)
+Do you really want to convert vg_opt/lv_cache and vg_opt/lv_cache_meta? [y/n]: y
+  Converted vg_opt/lv_cache and vg_opt/lv_cache_meta to cache pool.
+]0;vagrant@lvm:/[root@lvm /]# lvconvert --type cache --cacge[K[Khepool vg_opt/lv_cache vg_opt [K/lv_opt
+Do you want wipe existing metadata of cache pool vg_opt/lv_cache? [y/n]: y
+  Logical volume vg_opt/lv_opt is now cached.
+]0;vagrant@lvm:/[root@lvm /]# vgdisplay 
+  --- Volume group ---
+  VG Name               VolGroup00
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  11
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                3
+  Open LV               3
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               <38.97 GiB
+  PE Size               32.00 MiB
+  Total PE              1247
+  Alloc PE / Size       368 / 11.50 GiB
+  Free  PE / Size       879 / <27.47 GiB
+  VG UUID               SA8LTU-F2yz-FEV1-RdgT-hw0Z-iRxh-yHFKuU
+   
+  --- Volume group ---
+  VG Name               vg_var
+  System ID             
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                1
+  Open LV               1
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               1.99 GiB
+  PE Size               4.00 MiB
+  Total PE              510
+  Alloc PE / Size       478 / <1.87 GiB
+  Free  PE / Size       32 / 128.00 MiB
+  VG UUID               ZK7OwB-p6PY-mOLm-7oog-7ABl-0OhN-I9sqAH
+   
+  --- Volume group ---
+  VG Name               vg_opt
+  System ID             
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  8
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                1
+  Open LV               1
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               11.99 GiB
+  PE Size               4.00 MiB
+  Total PE              3070
+  Alloc PE / Size       2308 / <9.02 GiB
+  Free  PE / Size       762 / <2.98 GiB
+  VG UUID               4ws7n4-nrf1-e3e7-eHm3-Z0Ub-Y1AV-f8vPgH
+   
+]0;vagrant@lvm:/[root@lvm /]# df -h
+Filesystem                          Size  Used Avail Use% Mounted on
+/dev/mapper/VolGroup00-LogVol00     8.0G  813M  7.2G  10% /
+devtmpfs                            110M     0  110M   0% /dev
+tmpfs                               118M     0  118M   0% /dev/shm
+tmpfs                               118M  4.6M  114M   4% /run
+tmpfs                               118M     0  118M   0% /sys/fs/cgroup
+/dev/sda2                          1014M   61M  954M   6% /boot
+/dev/mapper/vg_var-lv_var           922M  137M  721M  16% /var
+tmpfs                                24M     0   24M   0% /run/user/0
+/dev/mapper/VolGroup00-LogVol_Home  2.0G   33M  2.0G   2% /home
+tmpfs                                24M     0   24M   0% /run/user/1000
+/dev/mapper/vg_opt-lv_opt           8.0G   17M  7.2G   1% /opt
+]0;vagrant@lvm:/[root@lvm /]# touy[Kch /opt/test{1..3-0[K[K0}
+]0;vagrant@lvm:/[root@lvm /]# ls /opt/
+test1   test11  test13  test15  test17  test19  test20  test22  test24  test26  test28  test3   test4  test6  test8
+test10  test12  test14  test16  test18  test2   test21  test23  test25  test27  test29  test30  test5  test7  test9
+]0;vagrant@lvm:/[root@lvm /]# lvcreate -L 100MB -s -n opt_snap11[K /dev/vg_opt/lv_opt
+  Logical volume "opt_snap1" created.
+]0;vagrant@lvm:/[root@lvm /]# lsblk 
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:7    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+├─vg_opt-lv_opt_corig      253:11   0    8G  0 lvm  
+│ └─vg_opt-lv_opt-real     253:12   0    8G  0 lvm  
+│   ├─vg_opt-lv_opt        253:8    0    8G  0 lvm  
+│   └─vg_opt-opt_snap1     253:14   0    8G  0 lvm  /opt
+└─vg_opt-opt_snap1-cow     253:13   0  100M  0 lvm  
+  └─vg_opt-opt_snap1       253:14   0    8G  0 lvm  /opt
+sdc                          8:32   0    2G  0 disk 
+├─vg_opt-lv_cache_cdata    253:9    0    1G  0 lvm  
+│ └─vg_opt-lv_opt-real     253:12   0    8G  0 lvm  
+│   ├─vg_opt-lv_opt        253:8    0    8G  0 lvm  
+│   └─vg_opt-opt_snap1     253:14   0    8G  0 lvm  /opt
+└─vg_opt-lv_cache_cmeta    253:10   0    8M  0 lvm  
+  └─vg_opt-lv_opt-real     253:12   0    8G  0 lvm  
+    ├─vg_opt-lv_opt        253:8    0    8G  0 lvm  
+    └─vg_opt-opt_snap1     253:14   0    8G  0 lvm  /opt
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:2    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:3    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:4    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:5    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+]0;vagrant@lvm:/[root@lvm /]# ls /opt/
+test1   test11  test13  test15  test17  test19  test20  test22  test24  test26  test28  test3   test4  test6  test8
+test10  test12  test14  test16  test18  test2   test21  test23  test25  test27  test29  test30  test5  test7  test9
+]0;vagrant@lvm:/[root@lvm /]# rm -f ?[K/p[Kopt/test{1..29}
+]0;vagrant@lvm:/[root@lvm /]# rm -f /opt/test{1..29}[C[C[C[C[C[C[C[C[C[C[C[C[C[C[14Pls /opt/
+test30
+]0;vagrant@lvm:/[root@lvm /]# umount /opt/
+]0;vagrant@lvm:/[root@lvm /]# lvconvert --merge /dev_[K/vg_opt/
+lv_opt     opt_snap1  
+[root@lvm /]# lvconvert --merge /dev/vg_opt/opt_snap1 
+  Merging of volume vg_opt/opt_snap1 started.
+  vg_opt/lv_opt: Merged: 99.63%
+  vg_opt/lv_opt: Merged: 99.99%
+]0;vagrant@lvm:/[root@lvm /]# /[Kmoo[Kunt /opt/
+]0;vagrant@lvm:/[root@lvm /]# cat /[K[K[K[K[Kls /opt/
+test1   test11  test13  test15  test17  test19  test20  test22  test24  test26  test28  test3   test4  test6  test8
+test10  test12  test14  test16  test18  test2   test21  test23  test25  test27  test29  test30  test5  test7  test9
+]0;vagrant@lvm:/[root@lvm /]# exit
+exit
+]0;vagrant@lvm:~[vagrant@lvm ~]$ reboot
+[1;31m==== AUTHENTICATING FOR org.freedesktop.login1.reboot ===
+[0mЧтобы перезагрузить систему, необходимо пройти аутентификацию.
+Authenticating as: root
+Password: 
+[1;31m==== AUTHENTICATION COMPLETE ===
+[0mConnection to 127.0.0.1 closed by remote host.
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ vagrant ssh
+Last login: Sun Feb 16 13:37:58 2020 from 10.0.2.2
+]0;vagrant@lvm:~[?1034h[vagrant@lvm ~]$ su
+Password: 
+]0;vagrant@lvm:/home/vagrant[?1034h[root@lvm vagrant]# lsblk 
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:2    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+└─vg_opt-lv_opt_corig      253:10   0    8G  0 lvm  
+  └─vg_opt-lv_opt          253:11   0    8G  0 lvm  /opt
+sdc                          8:32   0    2G  0 disk 
+├─vg_opt-lv_cache_cdata    253:8    0    1G  0 lvm  
+│ └─vg_opt-lv_opt          253:11   0    8G  0 lvm  /opt
+└─vg_opt-lv_cache_cmeta    253:9    0    8M  0 lvm  
+  └─vg_opt-lv_opt          253:11   0    8G  0 lvm  /opt
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:3    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:4    0  952M  0 lvm  
+  └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:5    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:6    0  952M  0 lvm  
+  └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# df -h
+Filesystem                          Size  Used Avail Use% Mounted on
+/dev/mapper/VolGroup00-LogVol00     8.0G  813M  7.2G  10% /
+devtmpfs                            110M     0  110M   0% /dev
+tmpfs                               118M     0  118M   0% /dev/shm
+tmpfs                               118M  4.6M  114M   4% /run
+tmpfs                               118M     0  118M   0% /sys/fs/cgroup
+/dev/sda2                          1014M   61M  954M   6% /boot
+/dev/mapper/VolGroup00-LogVol_Home  2.0G   33M  2.0G   2% /home
+/dev/mapper/vg_var-lv_var           922M  137M  721M  16% /var
+/dev/mapper/vg_opt-lv_opt           8.0G   17M  7.2G   1% /opt
+tmpfs                                24M     0   24M   0% /run/user/1000
+]0;vagrant@lvm:/home/vagrant[root@lvm vagrant]# exit
+exit
+]0;vagrant@lvm:~[vagrant@lvm ~]$ exit
+logout
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp[00m$ exit
+
+Script done on 2020-02-16 22:29:45+0500

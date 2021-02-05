@@ -1,0 +1,1179 @@
+Script started on 2020-02-14 17:32:05+0500
+]0;xsane@xsane-OMEN: ~/otus-homework/temp/1[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp/1[00m$ vagrant ssh
+Last login: Fri Feb 14 11:15:34 2020 from 10.0.2.2
+]0;vagrant@centos-7-raid:~[?1034h[vagrant@centos-7-raid ~]$ sudo passwd root
+Изменяется пароль пользователя root.
+Новый пароль : 
+НЕУДАЧНЫЙ ПАРОЛЬ: В пароле должно быть не меньше 8 символов
+Повторите ввод нового пароля : 
+passwd: все данные аутентификации успешно обновлены.
+]0;vagrant@centos-7-raid:~[vagrant@centos-7-raid ~]$ su
+Пароль: 
+]0;vagrant@centos-7-raid:/home/vagrant[?1034h[root@centos-7-raid vagrant]# lsblk 
+NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sdb               8:16   0    5G  0 disk 
+sda               8:0    0    5G  0 disk 
+├─sda2            8:2    0    4G  0 part 
+│ ├─centos-swap 253:1    0  512M  0 lvm  [SWAP]
+│ └─centos-root 253:0    0  3,5G  0 lvm  /
+└─sda1            8:1    0    1G  0 part /boot
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mdadm --zero-superblock --force /dev/sdb
+mdadm: Unrecognised md component device - /dev/sdb
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# sfdisk -d /dev/sda | sfdisk -f /dev/sdb
+Проверяется, чтобы сейчас никто не использовал этот диск...
+ОК
+
+Диск /dev/sdb: 656 цилиндров, 255 головок, 63 секторов/дорожку
+sfdisk:  /dev/sdb: нераспознанный тип таблицы разделов
+
+Старая ситуация:
+sfdisk: Разделы не найдены
+
+Новая ситуация:
+Units: sectors of 512 bytes, counting from 0
+
+  Устр-во Загр   Начало     Конец   #секторы  Id  Система
+/dev/sdb1   *      2048   2099199    2097152  83  Linux
+/dev/sdb2       2099200  10485759    8386560  8e  Linux LVM
+/dev/sdb3             0         -          0   0  Пустой
+/dev/sdb4             0         -          0   0  Пустой
+Предупреждение: раздел 1 не заканчивается на границе цилиндра
+Предупреждение: раздел 2 не начинается на границе цилиндра
+Предупреждение: раздел 2 не заканчивается на границе цилиндра
+Новая таблица разделов успешно записана
+
+Перечитывается таблица разделов...
+
+Если вы создали или изменили раздел DOS, скажем, /dev/foo7, используйте затем dd(1),
+чтобы обнулить первые 512 байт:  dd if=/dev/zero of=/dev/foo7 bs=512 count=1
+(См. fdisk(8).)
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mdadm --create /dev/md0 --level=1 --raid-devices=2 missing /dev/sdb1 --metadata=0.90
+mdadm: array /dev/md0 started.
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mdadm --create /dev/md1 --level=1 --raid-devices=2 missing /dev/sdb2 --metadata=0.90
+mdadm: array /dev/md1 started.
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat .p[K[K.[K/proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sdb2[1]
+      4193216 blocks [2/1] [_U]
+      
+md0 : active raid1 sdb1[1]
+      1048512 blocks [2/1] [_U]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mkfs.xfs /dev/md0
+meta-data=/dev/md0               isize=512    agcount=4, agsize=65532 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=262128, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=855, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mount /dev/md0 /mnt/
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# rsync --progress -av /boot/ /mnt/
+sending incremental file list
+./
+.vmlinuz-3.10.0-1062.12.1.el7.x86_64.hmac
+            172 100%    0.00kB/s    0:00:00              172 100%    0.00kB/s    0:00:00 (xfr#1, to-chk=328/330)
+.vmlinuz-3.10.0-1062.el7.x86_64.hmac
+            167 100%  163.09kB/s    0:00:00              167 100%  163.09kB/s    0:00:00 (xfr#2, to-chk=327/330)
+System.map-3.10.0-1062.12.1.el7.x86_64
+         32,768   0%   31.25MB/s    0:00:00        3,599,493 100%  156.03MB/s    0:00:00 (xfr#3, to-chk=326/330)
+System.map-5.5.3-1.el7.elrepo.x86_64
+         32,768   0%    1.30MB/s    0:00:03        4,513,304 100%  107.61MB/s    0:00:00 (xfr#4, to-chk=325/330)
+config-3.10.0-1062.12.1.el7.x86_64
+         32,768  21%  780.49kB/s    0:00:00          153,187 100%    3.56MB/s    0:00:00 (xfr#5, to-chk=324/330)
+config-5.5.3-1.el7.elrepo.x86_64
+         32,768  15%  761.90kB/s    0:00:00          209,807 100%    4.76MB/s    0:00:00 (xfr#6, to-chk=323/330)
+initramfs-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad.img
+         32,768   0%  744.19kB/s    0:01:22       61,192,917 100%  110.95MB/s    0:00:00 (xfr#7, to-chk=322/330)
+initramfs-3.10.0-1062.12.1.el7.x86_64.img
+         32,768   0%   60.72kB/s    0:05:40       20,723,609 100%   30.64MB/s    0:00:00 (xfr#8, to-chk=321/330)
+initramfs-5.5.3-1.el7.elrepo.x86_64.img
+         32,768   0%   49.54kB/s    0:07:00       20,858,485 100%   25.28MB/s    0:00:00 (xfr#9, to-chk=320/330)
+symvers-3.10.0-1062.12.1.el7.x86_64.gz
+         32,768  10%   40.66kB/s    0:00:07          318,984 100%  395.31kB/s    0:00:00 (xfr#10, to-chk=319/330)
+symvers-5.5.3-1.el7.elrepo.x86_64.gz
+         32,768   8%   40.56kB/s    0:00:08          395,569 100%  488.37kB/s    0:00:00 (xfr#11, to-chk=318/330)
+vmlinuz-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad
+         32,768   0%   40.40kB/s    0:02:45        6,734,016 100%    7.81MB/s    0:00:00 (xfr#12, to-chk=317/330)
+vmlinuz-3.10.0-1062.12.1.el7.x86_64
+         32,768   0%   38.88kB/s    0:02:52        6,734,016 100%    7.52MB/s    0:00:00 (xfr#13, to-chk=316/330)
+vmlinuz-5.5.3-1.el7.elrepo.x86_64
+         32,768   0%   37.38kB/s    0:03:26        7,756,160 100%    8.28MB/s    0:00:00 (xfr#14, to-chk=315/330)
+efi/
+efi/EFI/
+efi/EFI/centos/
+grub/
+grub/splash.xpm.gz
+          1,350 100%    1.48kB/s    0:00:00            1,350 100%    1.48kB/s    0:00:00 (xfr#15, to-chk=309/330)
+grub2/
+grub2/device.map
+             64 100%    0.07kB/s    0:00:00               64 100%    0.07kB/s    0:00:00 (xfr#16, to-chk=308/330)
+grub2/grub.cfg
+          5,385 100%    5.88kB/s    0:00:00            5,385 100%    5.88kB/s    0:00:00 (xfr#17, to-chk=307/330)
+grub2/grubenv
+          1,024 100%    1.12kB/s    0:00:00            1,024 100%    1.12kB/s    0:00:00 (xfr#18, to-chk=306/330)
+grub2/fonts/
+grub2/fonts/unicode.pf2
+         32,768   1%   35.75kB/s    0:01:10        2,560,080 100%    2.70MB/s    0:00:00 (xfr#19, to-chk=302/330)
+grub2/i386-pc/
+grub2/i386-pc/acpi.mod
+          9,936 100%   10.72kB/s    0:00:00            9,936 100%   10.72kB/s    0:00:00 (xfr#20, to-chk=301/330)
+grub2/i386-pc/adler32.mod
+          1,316 100%    1.42kB/s    0:00:00            1,316 100%    1.42kB/s    0:00:00 (xfr#21, to-chk=300/330)
+grub2/i386-pc/affs.mod
+          5,664 100%    6.11kB/s    0:00:00            5,664 100%    6.11kB/s    0:00:00 (xfr#22, to-chk=299/330)
+grub2/i386-pc/afs.mod
+          6,632 100%    7.15kB/s    0:00:00            6,632 100%    7.15kB/s    0:00:00 (xfr#23, to-chk=298/330)
+grub2/i386-pc/ahci.mod
+         15,764 100%   16.99kB/s    0:00:00           15,764 100%   16.99kB/s    0:00:00 (xfr#24, to-chk=297/330)
+grub2/i386-pc/all_video.mod
+            492 100%    0.53kB/s    0:00:00              492 100%    0.53kB/s    0:00:00 (xfr#25, to-chk=296/330)
+grub2/i386-pc/aout.mod
+          1,028 100%    1.11kB/s    0:00:00            1,028 100%    1.11kB/s    0:00:00 (xfr#26, to-chk=295/330)
+grub2/i386-pc/archelp.mod
+          2,932 100%    3.16kB/s    0:00:00            2,932 100%    3.16kB/s    0:00:00 (xfr#27, to-chk=294/330)
+grub2/i386-pc/at_keyboard.mod
+          4,212 100%    4.54kB/s    0:00:00            4,212 100%    4.54kB/s    0:00:00 (xfr#28, to-chk=293/330)
+grub2/i386-pc/ata.mod
+          5,588 100%    6.02kB/s    0:00:00            5,588 100%    6.02kB/s    0:00:00 (xfr#29, to-chk=292/330)
+grub2/i386-pc/backtrace.mod
+          1,628 100%    1.75kB/s    0:00:00            1,628 100%    1.75kB/s    0:00:00 (xfr#30, to-chk=291/330)
+grub2/i386-pc/bfs.mod
+          7,212 100%    7.76kB/s    0:00:00            7,212 100%    7.76kB/s    0:00:00 (xfr#31, to-chk=290/330)
+grub2/i386-pc/biosdisk.mod
+          4,556 100%    4.90kB/s    0:00:00            4,556 100%    4.90kB/s    0:00:00 (xfr#32, to-chk=289/330)
+grub2/i386-pc/bitmap.mod
+          2,240 100%    2.41kB/s    0:00:00            2,240 100%    2.41kB/s    0:00:00 (xfr#33, to-chk=288/330)
+grub2/i386-pc/bitmap_scale.mod
+          3,636 100%    3.91kB/s    0:00:00            3,636 100%    3.91kB/s    0:00:00 (xfr#34, to-chk=287/330)
+grub2/i386-pc/blocklist.mod
+          2,160 100%    2.32kB/s    0:00:00            2,160 100%    2.32kB/s    0:00:00 (xfr#35, to-chk=286/330)
+grub2/i386-pc/blscfg.mod
+          2,956 100%    3.18kB/s    0:00:00            2,956 100%    3.18kB/s    0:00:00 (xfr#36, to-chk=285/330)
+grub2/i386-pc/boot.img
+            512 100%    0.55kB/s    0:00:00              512 100%    0.55kB/s    0:00:00 (xfr#37, to-chk=284/330)
+grub2/i386-pc/boot.mod
+          2,444 100%    2.63kB/s    0:00:00            2,444 100%    2.63kB/s    0:00:00 (xfr#38, to-chk=283/330)
+grub2/i386-pc/bsd.mod
+         29,836 100%   32.05kB/s    0:00:00           29,836 100%   32.05kB/s    0:00:00 (xfr#39, to-chk=282/330)
+grub2/i386-pc/btrfs.mod
+         14,360 100%   15.41kB/s    0:00:00           14,360 100%   15.41kB/s    0:00:00 (xfr#40, to-chk=281/330)
+grub2/i386-pc/bufio.mod
+          2,136 100%    2.29kB/s    0:00:00            2,136 100%    2.29kB/s    0:00:00 (xfr#41, to-chk=280/330)
+grub2/i386-pc/cat.mod
+          2,888 100%    3.10kB/s    0:00:00            2,888 100%    3.10kB/s    0:00:00 (xfr#42, to-chk=279/330)
+grub2/i386-pc/cbfs.mod
+          3,764 100%    4.03kB/s    0:00:00            3,764 100%    4.03kB/s    0:00:00 (xfr#43, to-chk=278/330)
+grub2/i386-pc/cbls.mod
+          3,588 100%    3.85kB/s    0:00:00            3,588 100%    3.85kB/s    0:00:00 (xfr#44, to-chk=277/330)
+grub2/i386-pc/cbmemc.mod
+          2,388 100%    2.56kB/s    0:00:00            2,388 100%    2.56kB/s    0:00:00 (xfr#45, to-chk=276/330)
+grub2/i386-pc/cbtable.mod
+            984 100%    1.05kB/s    0:00:00              984 100%    1.05kB/s    0:00:00 (xfr#46, to-chk=275/330)
+grub2/i386-pc/cbtime.mod
+          2,556 100%    2.74kB/s    0:00:00            2,556 100%    2.74kB/s    0:00:00 (xfr#47, to-chk=274/330)
+grub2/i386-pc/chain.mod
+          3,504 100%    3.75kB/s    0:00:00            3,504 100%    3.75kB/s    0:00:00 (xfr#48, to-chk=273/330)
+grub2/i386-pc/cmdline_cat_test.mod
+          3,020 100%    3.23kB/s    0:00:00            3,020 100%    3.23kB/s    0:00:00 (xfr#49, to-chk=272/330)
+grub2/i386-pc/cmosdump.mod
+          1,216 100%    1.30kB/s    0:00:00            1,216 100%    1.30kB/s    0:00:00 (xfr#50, to-chk=271/330)
+grub2/i386-pc/cmostest.mod
+          1,832 100%    1.96kB/s    0:00:00            1,832 100%    1.96kB/s    0:00:00 (xfr#51, to-chk=270/330)
+grub2/i386-pc/cmp.mod
+          1,980 100%    2.12kB/s    0:00:00            1,980 100%    2.12kB/s    0:00:00 (xfr#52, to-chk=269/330)
+grub2/i386-pc/command.lst
+          3,793 100%    4.06kB/s    0:00:00            3,793 100%    4.06kB/s    0:00:00 (xfr#53, to-chk=268/330)
+grub2/i386-pc/configfile.mod
+          2,268 100%    2.43kB/s    0:00:00            2,268 100%    2.43kB/s    0:00:00 (xfr#54, to-chk=267/330)
+grub2/i386-pc/core.img
+         26,703 100%   28.56kB/s    0:00:00           26,703 100%   28.56kB/s    0:00:00 (xfr#55, to-chk=266/330)
+grub2/i386-pc/cpio.mod
+          2,644 100%    2.83kB/s    0:00:00            2,644 100%    2.83kB/s    0:00:00 (xfr#56, to-chk=265/330)
+grub2/i386-pc/cpio_be.mod
+          2,736 100%    2.93kB/s    0:00:00            2,736 100%    2.93kB/s    0:00:00 (xfr#57, to-chk=264/330)
+grub2/i386-pc/cpuid.mod
+          1,724 100%    1.84kB/s    0:00:00            1,724 100%    1.84kB/s    0:00:00 (xfr#58, to-chk=263/330)
+grub2/i386-pc/crc64.mod
+          1,612 100%    1.72kB/s    0:00:00            1,612 100%    1.72kB/s    0:00:00 (xfr#59, to-chk=262/330)
+grub2/i386-pc/crypto.lst
+            936 100%    1.00kB/s    0:00:00              936 100%    1.00kB/s    0:00:00 (xfr#60, to-chk=261/330)
+grub2/i386-pc/crypto.mod
+          4,904 100%    5.24kB/s    0:00:00            4,904 100%    5.24kB/s    0:00:00 (xfr#61, to-chk=260/330)
+grub2/i386-pc/cryptodisk.mod
+         10,004 100%    0.00kB/s    0:00:00           10,004 100%    0.00kB/s    0:00:00 (xfr#62, to-chk=259/330)
+grub2/i386-pc/cs5536.mod
+          3,880 100%    3.70MB/s    0:00:00            3,880 100%    3.70MB/s    0:00:00 (xfr#63, to-chk=258/330)
+grub2/i386-pc/date.mod
+          2,140 100%    2.04MB/s    0:00:00            2,140 100%    2.04MB/s    0:00:00 (xfr#64, to-chk=257/330)
+grub2/i386-pc/datehook.mod
+          1,792 100%    1.71MB/s    0:00:00            1,792 100%    1.71MB/s    0:00:00 (xfr#65, to-chk=256/330)
+grub2/i386-pc/datetime.mod
+          1,260 100%  615.23kB/s    0:00:00            1,260 100%  615.23kB/s    0:00:00 (xfr#66, to-chk=255/330)
+grub2/i386-pc/disk.mod
+          2,376 100%    1.13MB/s    0:00:00            2,376 100%    1.13MB/s    0:00:00 (xfr#67, to-chk=254/330)
+grub2/i386-pc/diskfilter.mod
+          9,836 100%    3.13MB/s    0:00:00            9,836 100%    3.13MB/s    0:00:00 (xfr#68, to-chk=253/330)
+grub2/i386-pc/div_test.mod
+          3,848 100%    1.22MB/s    0:00:00            3,848 100%    1.22MB/s    0:00:00 (xfr#69, to-chk=252/330)
+grub2/i386-pc/dm_nv.mod
+          1,856 100%  453.12kB/s    0:00:00            1,856 100%  453.12kB/s    0:00:00 (xfr#70, to-chk=251/330)
+grub2/i386-pc/drivemap.mod
+          5,360 100%    1.02MB/s    0:00:00            5,360 100%    1.02MB/s    0:00:00 (xfr#71, to-chk=250/330)
+grub2/i386-pc/echo.mod
+          1,964 100%  383.59kB/s    0:00:00            1,964 100%  383.59kB/s    0:00:00 (xfr#72, to-chk=249/330)
+grub2/i386-pc/efiemu.mod
+         23,972 100%    3.81MB/s    0:00:00           23,972 100%    3.81MB/s    0:00:00 (xfr#73, to-chk=248/330)
+grub2/i386-pc/ehci.mod
+         15,952 100%    2.54MB/s    0:00:00           15,952 100%    2.54MB/s    0:00:00 (xfr#74, to-chk=247/330)
+grub2/i386-pc/elf.mod
+          5,192 100%  845.05kB/s    0:00:00            5,192 100%  845.05kB/s    0:00:00 (xfr#75, to-chk=246/330)
+grub2/i386-pc/eval.mod
+          1,448 100%  235.68kB/s    0:00:00            1,448 100%  235.68kB/s    0:00:00 (xfr#76, to-chk=245/330)
+grub2/i386-pc/exfat.mod
+          5,468 100%  889.97kB/s    0:00:00            5,468 100%  889.97kB/s    0:00:00 (xfr#77, to-chk=244/330)
+grub2/i386-pc/exfctest.mod
+          1,468 100%  238.93kB/s    0:00:00            1,468 100%  238.93kB/s    0:00:00 (xfr#78, to-chk=243/330)
+grub2/i386-pc/ext2.mod
+          5,580 100%  778.46kB/s    0:00:00            5,580 100%  778.46kB/s    0:00:00 (xfr#79, to-chk=242/330)
+grub2/i386-pc/extcmd.mod
+          4,544 100%  633.93kB/s    0:00:00            4,544 100%  633.93kB/s    0:00:00 (xfr#80, to-chk=241/330)
+grub2/i386-pc/fat.mod
+          5,604 100%  781.81kB/s    0:00:00            5,604 100%  781.81kB/s    0:00:00 (xfr#81, to-chk=240/330)
+grub2/i386-pc/file.mod
+         15,980 100%    2.18MB/s    0:00:00           15,980 100%    2.18MB/s    0:00:00 (xfr#82, to-chk=239/330)
+grub2/i386-pc/font.mod
+         12,516 100%    1.49MB/s    0:00:00           12,516 100%    1.49MB/s    0:00:00 (xfr#83, to-chk=238/330)
+grub2/i386-pc/freedos.mod
+          2,656 100%  324.22kB/s    0:00:00            2,656 100%  324.22kB/s    0:00:00 (xfr#84, to-chk=237/330)
+grub2/i386-pc/fs.lst
+            214 100%   26.12kB/s    0:00:00              214 100%   26.12kB/s    0:00:00 (xfr#85, to-chk=236/330)
+grub2/i386-pc/fshelp.mod
+          2,564 100%  312.99kB/s    0:00:00            2,564 100%  312.99kB/s    0:00:00 (xfr#86, to-chk=235/330)
+grub2/i386-pc/functional_test.mod
+         32,768  36%    3.47MB/s    0:00:00           89,732 100%    9.51MB/s    0:00:00 (xfr#87, to-chk=234/330)
+grub2/i386-pc/gcry_arcfour.mod
+          1,660 100%  180.12kB/s    0:00:00            1,660 100%  180.12kB/s    0:00:00 (xfr#88, to-chk=233/330)
+grub2/i386-pc/gcry_blowfish.mod
+          8,372 100%  908.42kB/s    0:00:00            8,372 100%  908.42kB/s    0:00:00 (xfr#89, to-chk=232/330)
+grub2/i386-pc/gcry_camellia.mod
+         32,768  95%    3.47MB/s    0:00:00           34,492 100%    3.65MB/s    0:00:00 (xfr#90, to-chk=231/330)
+grub2/i386-pc/gcry_cast5.mod
+         16,644 100%    1.59MB/s    0:00:00           16,644 100%    1.59MB/s    0:00:00 (xfr#91, to-chk=230/330)
+grub2/i386-pc/gcry_crc.mod
+          2,916 100%  284.77kB/s    0:00:00            2,916 100%  284.77kB/s    0:00:00 (xfr#92, to-chk=229/330)
+grub2/i386-pc/gcry_des.mod
+         19,344 100%    1.84MB/s    0:00:00           19,344 100%    1.84MB/s    0:00:00 (xfr#93, to-chk=228/330)
+grub2/i386-pc/gcry_dsa.mod
+          2,268 100%  221.48kB/s    0:00:00            2,268 100%  221.48kB/s    0:00:00 (xfr#94, to-chk=227/330)
+grub2/i386-pc/gcry_idea.mod
+          2,956 100%  288.67kB/s    0:00:00            2,956 100%  288.67kB/s    0:00:00 (xfr#95, to-chk=226/330)
+grub2/i386-pc/gcry_md4.mod
+          3,144 100%  307.03kB/s    0:00:00            3,144 100%  307.03kB/s    0:00:00 (xfr#96, to-chk=225/330)
+grub2/i386-pc/gcry_md5.mod
+          3,768 100%  334.52kB/s    0:00:00            3,768 100%  334.52kB/s    0:00:00 (xfr#97, to-chk=224/330)
+grub2/i386-pc/gcry_rfc2268.mod
+          2,500 100%  221.95kB/s    0:00:00            2,500 100%  221.95kB/s    0:00:00 (xfr#98, to-chk=223/330)
+grub2/i386-pc/gcry_rijndael.mod
+         19,140 100%    1.66MB/s    0:00:00           19,140 100%    1.66MB/s    0:00:00 (xfr#99, to-chk=222/330)
+grub2/i386-pc/gcry_rmd160.mod
+          8,072 100%  716.62kB/s    0:00:00            8,072 100%  716.62kB/s    0:00:00 (xfr#100, to-chk=221/330)
+grub2/i386-pc/gcry_rsa.mod
+          2,072 100%  183.95kB/s    0:00:00            2,072 100%  183.95kB/s    0:00:00 (xfr#101, to-chk=220/330)
+grub2/i386-pc/gcry_seed.mod
+         15,356 100%    1.22MB/s    0:00:00           15,356 100%    1.22MB/s    0:00:00 (xfr#102, to-chk=219/330)
+grub2/i386-pc/gcry_serpent.mod
+         16,528 100%    1.31MB/s    0:00:00           16,528 100%    1.31MB/s    0:00:00 (xfr#103, to-chk=218/330)
+grub2/i386-pc/gcry_sha1.mod
+          8,324 100%  677.41kB/s    0:00:00            8,324 100%  677.41kB/s    0:00:00 (xfr#104, to-chk=217/330)
+grub2/i386-pc/gcry_sha256.mod
+          4,284 100%  348.63kB/s    0:00:00            4,284 100%  348.63kB/s    0:00:00 (xfr#105, to-chk=216/330)
+grub2/i386-pc/gcry_sha512.mod
+          8,728 100%  655.65kB/s    0:00:00            8,728 100%  655.65kB/s    0:00:00 (xfr#106, to-chk=215/330)
+grub2/i386-pc/gcry_tiger.mod
+         12,580 100%  945.01kB/s    0:00:00           12,580 100%  945.01kB/s    0:00:00 (xfr#107, to-chk=214/330)
+grub2/i386-pc/gcry_twofish.mod
+         32,768  87%    2.40MB/s    0:00:00           37,344 100%    2.74MB/s    0:00:00 (xfr#108, to-chk=213/330)
+grub2/i386-pc/gcry_whirlpool.mod
+         24,596 100%    1.80MB/s    0:00:00           24,596 100%    1.80MB/s    0:00:00 (xfr#109, to-chk=212/330)
+grub2/i386-pc/gdb.mod
+         25,248 100%    1.72MB/s    0:00:00           25,248 100%    1.72MB/s    0:00:00 (xfr#110, to-chk=211/330)
+grub2/i386-pc/geli.mod
+          5,780 100%  403.18kB/s    0:00:00            5,780 100%  403.18kB/s    0:00:00 (xfr#111, to-chk=210/330)
+grub2/i386-pc/gettext.mod
+          4,724 100%  329.52kB/s    0:00:00            4,724 100%  329.52kB/s    0:00:00 (xfr#112, to-chk=209/330)
+grub2/i386-pc/gfxmenu.mod
+         32,768  83%    2.23MB/s    0:00:00           39,196 100%    2.67MB/s    0:00:00 (xfr#113, to-chk=208/330)
+grub2/i386-pc/gfxterm.mod
+          9,996 100%  697.27kB/s    0:00:00            9,996 100%  697.27kB/s    0:00:00 (xfr#114, to-chk=207/330)
+grub2/i386-pc/gfxterm_background.mod
+          2,864 100%  186.46kB/s    0:00:00            2,864 100%  186.46kB/s    0:00:00 (xfr#115, to-chk=206/330)
+grub2/i386-pc/gfxterm_menu.mod
+          5,000 100%  325.52kB/s    0:00:00            5,000 100%  325.52kB/s    0:00:00 (xfr#116, to-chk=205/330)
+grub2/i386-pc/gptsync.mod
+          3,716 100%  241.93kB/s    0:00:00            3,716 100%  241.93kB/s    0:00:00 (xfr#117, to-chk=204/330)
+grub2/i386-pc/gzio.mod
+          8,252 100%  537.24kB/s    0:00:00            8,252 100%  537.24kB/s    0:00:00 (xfr#118, to-chk=203/330)
+grub2/i386-pc/halt.mod
+          4,288 100%  279.17kB/s    0:00:00            4,288 100%  279.17kB/s    0:00:00 (xfr#119, to-chk=202/330)
+grub2/i386-pc/hashsum.mod
+          5,216 100%  318.36kB/s    0:00:00            5,216 100%  318.36kB/s    0:00:00 (xfr#120, to-chk=201/330)
+grub2/i386-pc/hdparm.mod
+          7,248 100%  442.38kB/s    0:00:00            7,248 100%  442.38kB/s    0:00:00 (xfr#121, to-chk=200/330)
+grub2/i386-pc/hello.mod
+          1,208 100%   73.73kB/s    0:00:00            1,208 100%   73.73kB/s    0:00:00 (xfr#122, to-chk=199/330)
+grub2/i386-pc/help.mod
+          2,568 100%  156.74kB/s    0:00:00            2,568 100%  156.74kB/s    0:00:00 (xfr#123, to-chk=198/330)
+grub2/i386-pc/hexdump.mod
+          3,144 100%  191.89kB/s    0:00:00            3,144 100%  191.89kB/s    0:00:00 (xfr#124, to-chk=197/330)
+grub2/i386-pc/hfs.mod
+          7,176 100%  412.22kB/s    0:00:00            7,176 100%  412.22kB/s    0:00:00 (xfr#125, to-chk=196/330)
+grub2/i386-pc/hfsplus.mod
+          7,556 100%  434.05kB/s    0:00:00            7,556 100%  434.05kB/s    0:00:00 (xfr#126, to-chk=195/330)
+grub2/i386-pc/hfspluscomp.mod
+          2,976 100%  170.96kB/s    0:00:00            2,976 100%  170.96kB/s    0:00:00 (xfr#127, to-chk=194/330)
+grub2/i386-pc/http.mod
+          5,820 100%  334.33kB/s    0:00:00            5,820 100%  334.33kB/s    0:00:00 (xfr#128, to-chk=193/330)
+grub2/i386-pc/iorw.mod
+          2,896 100%  166.36kB/s    0:00:00            2,896 100%  166.36kB/s    0:00:00 (xfr#129, to-chk=192/330)
+grub2/i386-pc/iso9660.mod
+          8,568 100%  464.84kB/s    0:00:00            8,568 100%  464.84kB/s    0:00:00 (xfr#130, to-chk=191/330)
+grub2/i386-pc/jfs.mod
+          6,124 100%  332.25kB/s    0:00:00            6,124 100%  332.25kB/s    0:00:00 (xfr#131, to-chk=190/330)
+grub2/i386-pc/jpeg.mod
+          6,236 100%  338.32kB/s    0:00:00            6,236 100%  338.32kB/s    0:00:00 (xfr#132, to-chk=189/330)
+grub2/i386-pc/keylayouts.mod
+          4,984 100%  270.40kB/s    0:00:00            4,984 100%  270.40kB/s    0:00:00 (xfr#133, to-chk=188/330)
+grub2/i386-pc/keystatus.mod
+          1,952 100%  100.33kB/s    0:00:00            1,952 100%  100.33kB/s    0:00:00 (xfr#134, to-chk=187/330)
+grub2/i386-pc/ldm.mod
+          6,540 100%  336.14kB/s    0:00:00            6,540 100%  336.14kB/s    0:00:00 (xfr#135, to-chk=186/330)
+grub2/i386-pc/legacy_password_test.mod
+         14,468 100%  743.63kB/s    0:00:00           14,468 100%  743.63kB/s    0:00:00 (xfr#136, to-chk=185/330)
+grub2/i386-pc/legacycfg.mod
+         29,788 100%    1.42MB/s    0:00:00           29,788 100%    1.42MB/s    0:00:00 (xfr#137, to-chk=184/330)
+grub2/i386-pc/linux.mod
+         13,436 100%  624.81kB/s    0:00:00           13,436 100%  624.81kB/s    0:00:00 (xfr#138, to-chk=183/330)
+grub2/i386-pc/linux16.mod
+          8,324 100%  387.09kB/s    0:00:00            8,324 100%  387.09kB/s    0:00:00 (xfr#139, to-chk=182/330)
+grub2/i386-pc/loadenv.mod
+          5,860 100%  272.51kB/s    0:00:00            5,860 100%  272.51kB/s    0:00:00 (xfr#140, to-chk=181/330)
+grub2/i386-pc/loopback.mod
+          2,948 100%  130.86kB/s    0:00:00            2,948 100%  130.86kB/s    0:00:00 (xfr#141, to-chk=180/330)
+grub2/i386-pc/ls.mod
+          4,052 100%  179.87kB/s    0:00:00            4,052 100%  179.87kB/s    0:00:00 (xfr#142, to-chk=179/330)
+grub2/i386-pc/lsacpi.mod
+          4,784 100%  212.36kB/s    0:00:00            4,784 100%  212.36kB/s    0:00:00 (xfr#143, to-chk=178/330)
+grub2/i386-pc/lsapm.mod
+          2,280 100%  101.21kB/s    0:00:00            2,280 100%  101.21kB/s    0:00:00 (xfr#144, to-chk=177/330)
+grub2/i386-pc/lsmmap.mod
+          1,844 100%   81.85kB/s    0:00:00            1,844 100%   81.85kB/s    0:00:00 (xfr#145, to-chk=176/330)
+grub2/i386-pc/lspci.mod
+          4,824 100%  204.82kB/s    0:00:00            4,824 100%  204.82kB/s    0:00:00 (xfr#146, to-chk=175/330)
+grub2/i386-pc/luks.mod
+          6,628 100%  281.42kB/s    0:00:00            6,628 100%  281.42kB/s    0:00:00 (xfr#147, to-chk=174/330)
+grub2/i386-pc/lvm.mod
+          6,696 100%  284.31kB/s    0:00:00            6,696 100%  284.31kB/s    0:00:00 (xfr#148, to-chk=173/330)
+grub2/i386-pc/lzopio.mod
+          8,700 100%  354.00kB/s    0:00:00            8,700 100%  354.00kB/s    0:00:00 (xfr#149, to-chk=172/330)
+grub2/i386-pc/macbless.mod
+          3,296 100%  134.11kB/s    0:00:00            3,296 100%  134.11kB/s    0:00:00 (xfr#150, to-chk=171/330)
+grub2/i386-pc/macho.mod
+          7,528 100%  306.32kB/s    0:00:00            7,528 100%  294.06kB/s    0:00:00 (xfr#151, to-chk=170/330)
+grub2/i386-pc/mda_text.mod
+          2,028 100%   79.22kB/s    0:00:00            2,028 100%   79.22kB/s    0:00:00 (xfr#152, to-chk=169/330)
+grub2/i386-pc/mdraid09.mod
+          1,948 100%   76.09kB/s    0:00:00            1,948 100%   76.09kB/s    0:00:00 (xfr#153, to-chk=168/330)
+grub2/i386-pc/mdraid09_be.mod
+          2,020 100%   75.87kB/s    0:00:00            2,020 100%   75.87kB/s    0:00:00 (xfr#154, to-chk=167/330)
+grub2/i386-pc/mdraid1x.mod
+          1,980 100%   74.37kB/s    0:00:00            1,980 100%   74.37kB/s    0:00:00 (xfr#155, to-chk=166/330)
+grub2/i386-pc/memdisk.mod
+          1,996 100%   72.19kB/s    0:00:00            1,996 100%   72.19kB/s    0:00:00 (xfr#156, to-chk=165/330)
+grub2/i386-pc/memrw.mod
+          2,912 100%  105.32kB/s    0:00:00            2,912 100%  105.32kB/s    0:00:00 (xfr#157, to-chk=164/330)
+grub2/i386-pc/minicmd.mod
+          3,504 100%  126.74kB/s    0:00:00            3,504 100%  126.74kB/s    0:00:00 (xfr#158, to-chk=163/330)
+grub2/i386-pc/minix.mod
+          3,488 100%  121.65kB/s    0:00:00            3,488 100%  121.65kB/s    0:00:00 (xfr#159, to-chk=162/330)
+grub2/i386-pc/minix2.mod
+          3,564 100%  124.30kB/s    0:00:00            3,564 100%  124.30kB/s    0:00:00 (xfr#160, to-chk=161/330)
+grub2/i386-pc/minix2_be.mod
+          3,720 100%  129.74kB/s    0:00:00            3,720 100%  129.74kB/s    0:00:00 (xfr#161, to-chk=160/330)
+grub2/i386-pc/minix3.mod
+          3,532 100%  123.19kB/s    0:00:00            3,532 100%  123.19kB/s    0:00:00 (xfr#162, to-chk=159/330)
+grub2/i386-pc/minix3_be.mod
+          3,684 100%  128.49kB/s    0:00:00            3,684 100%  128.49kB/s    0:00:00 (xfr#163, to-chk=158/330)
+grub2/i386-pc/minix_be.mod
+          3,636 100%  126.81kB/s    0:00:00            3,636 100%  126.81kB/s    0:00:00 (xfr#164, to-chk=157/330)
+grub2/i386-pc/mmap.mod
+          8,580 100%  288.93kB/s    0:00:00            8,580 100%  288.93kB/s    0:00:00 (xfr#165, to-chk=156/330)
+grub2/i386-pc/moddep.lst
+          5,188 100%  174.70kB/s    0:00:00            5,188 100%  174.70kB/s    0:00:00 (xfr#166, to-chk=155/330)
+grub2/i386-pc/modinfo.sh
+          2,251 100%   75.80kB/s    0:00:00            2,251 100%   75.80kB/s    0:00:00 (xfr#167, to-chk=154/330)
+grub2/i386-pc/morse.mod
+          2,364 100%   79.61kB/s    0:00:00            2,364 100%   79.61kB/s    0:00:00 (xfr#168, to-chk=153/330)
+grub2/i386-pc/mpi.mod
+         27,504 100%  895.31kB/s    0:00:00           27,504 100%  895.31kB/s    0:00:00 (xfr#169, to-chk=152/330)
+grub2/i386-pc/msdospart.mod
+          2,396 100%   77.99kB/s    0:00:00            2,396 100%   77.99kB/s    0:00:00 (xfr#170, to-chk=151/330)
+grub2/i386-pc/multiboot.mod
+         13,212 100%  430.08kB/s    0:00:00           13,212 100%  430.08kB/s    0:00:00 (xfr#171, to-chk=150/330)
+grub2/i386-pc/multiboot2.mod
+         13,680 100%  445.31kB/s    0:00:00           13,680 100%  445.31kB/s    0:00:00 (xfr#172, to-chk=149/330)
+grub2/i386-pc/nativedisk.mod
+          4,028 100%  131.12kB/s    0:00:00            4,028 100%  131.12kB/s    0:00:00 (xfr#173, to-chk=148/330)
+grub2/i386-pc/net.mod
+         32,768  55%    1.01MB/s    0:00:00           59,084 100%    1.82MB/s    0:00:00 (xfr#174, to-chk=147/330)
+grub2/i386-pc/newc.mod
+          2,904 100%   91.48kB/s    0:00:00            2,904 100%   91.48kB/s    0:00:00 (xfr#175, to-chk=146/330)
+grub2/i386-pc/nilfs2.mod
+          6,704 100%  211.19kB/s    0:00:00            6,704 100%  211.19kB/s    0:00:00 (xfr#176, to-chk=145/330)
+grub2/i386-pc/normal.mod
+         32,768  28%    1.01MB/s    0:00:00          115,100 100%    3.43MB/s    0:00:00 (xfr#177, to-chk=144/330)
+grub2/i386-pc/ntfs.mod
+          9,900 100%  302.12kB/s    0:00:00            9,900 100%  302.12kB/s    0:00:00 (xfr#178, to-chk=143/330)
+grub2/i386-pc/ntfscomp.mod
+          4,300 100%  131.23kB/s    0:00:00            4,300 100%  131.23kB/s    0:00:00 (xfr#179, to-chk=142/330)
+grub2/i386-pc/ntldr.mod
+          2,548 100%   77.76kB/s    0:00:00            2,548 100%   77.76kB/s    0:00:00 (xfr#180, to-chk=141/330)
+grub2/i386-pc/odc.mod
+          2,736 100%   80.97kB/s    0:00:00            2,736 100%   80.97kB/s    0:00:00 (xfr#181, to-chk=140/330)
+grub2/i386-pc/offsetio.mod
+          1,508 100%   44.63kB/s    0:00:00            1,508 100%   44.63kB/s    0:00:00 (xfr#182, to-chk=139/330)
+grub2/i386-pc/ohci.mod
+         10,580 100%  313.09kB/s    0:00:00           10,580 100%  313.09kB/s    0:00:00 (xfr#183, to-chk=138/330)
+grub2/i386-pc/part_acorn.mod
+          1,656 100%   49.01kB/s    0:00:00            1,656 100%   49.01kB/s    0:00:00 (xfr#184, to-chk=137/330)
+grub2/i386-pc/part_amiga.mod
+          1,852 100%   54.81kB/s    0:00:00            1,852 100%   54.81kB/s    0:00:00 (xfr#185, to-chk=136/330)
+grub2/i386-pc/part_apple.mod
+          2,104 100%   62.26kB/s    0:00:00            2,104 100%   62.26kB/s    0:00:00 (xfr#186, to-chk=135/330)
+grub2/i386-pc/part_bsd.mod
+          2,760 100%   79.27kB/s    0:00:00            2,760 100%   79.27kB/s    0:00:00 (xfr#187, to-chk=134/330)
+grub2/i386-pc/part_dfly.mod
+          1,732 100%   49.75kB/s    0:00:00            1,732 100%   49.75kB/s    0:00:00 (xfr#188, to-chk=133/330)
+grub2/i386-pc/part_dvh.mod
+          1,480 100%   42.51kB/s    0:00:00            1,480 100%   42.51kB/s    0:00:00 (xfr#189, to-chk=132/330)
+grub2/i386-pc/part_gpt.mod
+          2,364 100%   67.90kB/s    0:00:00            2,364 100%   67.90kB/s    0:00:00 (xfr#190, to-chk=131/330)
+grub2/i386-pc/part_msdos.mod
+          2,340 100%   67.21kB/s    0:00:00            2,340 100%   67.21kB/s    0:00:00 (xfr#191, to-chk=130/330)
+grub2/i386-pc/part_plan.mod
+          1,796 100%   51.59kB/s    0:00:00            1,796 100%   51.59kB/s    0:00:00 (xfr#192, to-chk=129/330)
+grub2/i386-pc/part_sun.mod
+          1,528 100%   42.63kB/s    0:00:00            1,528 100%   42.63kB/s    0:00:00 (xfr#193, to-chk=128/330)
+grub2/i386-pc/part_sunpc.mod
+          1,616 100%   45.09kB/s    0:00:00            1,616 100%   45.09kB/s    0:00:00 (xfr#194, to-chk=127/330)
+grub2/i386-pc/partmap.lst
+            111 100%    3.10kB/s    0:00:00              111 100%    3.10kB/s    0:00:00 (xfr#195, to-chk=126/330)
+grub2/i386-pc/parttool.lst
+             17 100%    0.47kB/s    0:00:00               17 100%    0.47kB/s    0:00:00 (xfr#196, to-chk=125/330)
+grub2/i386-pc/parttool.mod
+          4,628 100%  125.54kB/s    0:00:00            4,628 100%  125.54kB/s    0:00:00 (xfr#197, to-chk=124/330)
+grub2/i386-pc/password.mod
+          1,884 100%   51.11kB/s    0:00:00            1,884 100%   51.11kB/s    0:00:00 (xfr#198, to-chk=123/330)
+grub2/i386-pc/password_pbkdf2.mod
+          2,800 100%   75.95kB/s    0:00:00            2,800 100%   75.95kB/s    0:00:00 (xfr#199, to-chk=122/330)
+grub2/i386-pc/pata.mod
+          4,760 100%  129.12kB/s    0:00:00            4,760 100%  129.12kB/s    0:00:00 (xfr#200, to-chk=121/330)
+grub2/i386-pc/pbkdf2.mod
+          1,456 100%   39.50kB/s    0:00:00            1,456 100%   39.50kB/s    0:00:00 (xfr#201, to-chk=120/330)
+grub2/i386-pc/pbkdf2_test.mod
+          2,224 100%   58.70kB/s    0:00:00            2,224 100%   58.70kB/s    0:00:00 (xfr#202, to-chk=119/330)
+grub2/i386-pc/pci.mod
+          1,400 100%   36.95kB/s    0:00:00            1,400 100%   36.95kB/s    0:00:00 (xfr#203, to-chk=118/330)
+grub2/i386-pc/pcidump.mod
+          2,464 100%   65.03kB/s    0:00:00            2,464 100%   65.03kB/s    0:00:00 (xfr#204, to-chk=117/330)
+grub2/i386-pc/plan9.mod
+          6,212 100%  163.96kB/s    0:00:00            6,212 100%  163.96kB/s    0:00:00 (xfr#205, to-chk=116/330)
+grub2/i386-pc/play.mod
+          2,420 100%   63.87kB/s    0:00:00            2,420 100%   63.87kB/s    0:00:00 (xfr#206, to-chk=115/330)
+grub2/i386-pc/png.mod
+          7,348 100%  188.84kB/s    0:00:00            7,348 100%  188.84kB/s    0:00:00 (xfr#207, to-chk=114/330)
+grub2/i386-pc/priority_queue.mod
+          1,564 100%   40.19kB/s    0:00:00            1,564 100%   40.19kB/s    0:00:00 (xfr#208, to-chk=113/330)
+grub2/i386-pc/probe.mod
+          2,640 100%   67.85kB/s    0:00:00            2,640 100%   67.85kB/s    0:00:00 (xfr#209, to-chk=112/330)
+grub2/i386-pc/procfs.mod
+          2,112 100%   54.28kB/s    0:00:00            2,112 100%   54.28kB/s    0:00:00 (xfr#210, to-chk=111/330)
+grub2/i386-pc/progress.mod
+          2,056 100%   52.84kB/s    0:00:00            2,056 100%   52.84kB/s    0:00:00 (xfr#211, to-chk=110/330)
+grub2/i386-pc/pxe.mod
+          3,868 100%   99.40kB/s    0:00:00            3,868 100%   99.40kB/s    0:00:00 (xfr#212, to-chk=109/330)
+grub2/i386-pc/pxechain.mod
+          2,664 100%   66.71kB/s    0:00:00            2,664 100%   66.71kB/s    0:00:00 (xfr#213, to-chk=108/330)
+grub2/i386-pc/raid5rec.mod
+          1,404 100%   35.16kB/s    0:00:00            1,404 100%   35.16kB/s    0:00:00 (xfr#214, to-chk=107/330)
+grub2/i386-pc/raid6rec.mod
+          2,192 100%   54.89kB/s    0:00:00            2,192 100%   54.89kB/s    0:00:00 (xfr#215, to-chk=106/330)
+grub2/i386-pc/read.mod
+          1,448 100%   36.26kB/s    0:00:00            1,448 100%   36.26kB/s    0:00:00 (xfr#216, to-chk=105/330)
+grub2/i386-pc/reboot.mod
+          1,720 100%   43.07kB/s    0:00:00            1,720 100%   43.07kB/s    0:00:00 (xfr#217, to-chk=104/330)
+grub2/i386-pc/regexp.mod
+         32,768  64%  800.00kB/s    0:00:00           51,152 100%    1.22MB/s    0:00:00 (xfr#218, to-chk=103/330)
+grub2/i386-pc/reiserfs.mod
+          8,836 100%  215.72kB/s    0:00:00            8,836 100%  215.72kB/s    0:00:00 (xfr#219, to-chk=102/330)
+grub2/i386-pc/relocator.mod
+         14,880 100%  363.28kB/s    0:00:00           14,880 100%  363.28kB/s    0:00:00 (xfr#220, to-chk=101/330)
+grub2/i386-pc/romfs.mod
+          4,260 100%  104.00kB/s    0:00:00            4,260 100%  104.00kB/s    0:00:00 (xfr#221, to-chk=100/330)
+grub2/i386-pc/scsi.mod
+          4,712 100%  115.04kB/s    0:00:00            4,712 100%  115.04kB/s    0:00:00 (xfr#222, to-chk=99/330)
+grub2/i386-pc/search.mod
+          3,632 100%   88.67kB/s    0:00:00            3,632 100%   88.67kB/s    0:00:00 (xfr#223, to-chk=98/330)
+grub2/i386-pc/search_fs_file.mod
+          3,220 100%   76.70kB/s    0:00:00            3,220 100%   76.70kB/s    0:00:00 (xfr#224, to-chk=97/330)
+grub2/i386-pc/search_fs_uuid.mod
+          3,176 100%   75.65kB/s    0:00:00            3,176 100%   75.65kB/s    0:00:00 (xfr#225, to-chk=96/330)
+grub2/i386-pc/search_label.mod
+          3,124 100%   74.41kB/s    0:00:00            3,124 100%   74.41kB/s    0:00:00 (xfr#226, to-chk=95/330)
+grub2/i386-pc/sendkey.mod
+          7,100 100%  169.11kB/s    0:00:00            7,100 100%  169.11kB/s    0:00:00 (xfr#227, to-chk=94/330)
+grub2/i386-pc/serial.mod
+          7,716 100%  183.78kB/s    0:00:00            7,716 100%  183.78kB/s    0:00:00 (xfr#228, to-chk=93/330)
+grub2/i386-pc/setjmp.mod
+            708 100%   16.86kB/s    0:00:00              708 100%   16.86kB/s    0:00:00 (xfr#229, to-chk=92/330)
+grub2/i386-pc/setjmp_test.mod
+          1,704 100%   39.62kB/s    0:00:00            1,704 100%   39.62kB/s    0:00:00 (xfr#230, to-chk=91/330)
+grub2/i386-pc/setpci.mod
+          5,352 100%  124.44kB/s    0:00:00            5,352 100%  124.44kB/s    0:00:00 (xfr#231, to-chk=90/330)
+grub2/i386-pc/sfs.mod
+          5,160 100%  119.98kB/s    0:00:00            5,160 100%  119.98kB/s    0:00:00 (xfr#232, to-chk=89/330)
+grub2/i386-pc/signature_test.mod
+          6,412 100%  149.09kB/s    0:00:00            6,412 100%  149.09kB/s    0:00:00 (xfr#233, to-chk=88/330)
+grub2/i386-pc/sleep.mod
+          2,120 100%   49.29kB/s    0:00:00            2,120 100%   49.29kB/s    0:00:00 (xfr#234, to-chk=87/330)
+grub2/i386-pc/sleep_test.mod
+          2,324 100%   52.78kB/s    0:00:00            2,324 100%   52.78kB/s    0:00:00 (xfr#235, to-chk=86/330)
+grub2/i386-pc/spkmodem.mod
+          2,084 100%   47.33kB/s    0:00:00            2,084 100%   47.33kB/s    0:00:00 (xfr#236, to-chk=85/330)
+grub2/i386-pc/squash4.mod
+          6,792 100%  154.25kB/s    0:00:00            6,792 100%  154.25kB/s    0:00:00 (xfr#237, to-chk=84/330)
+grub2/i386-pc/syslinuxcfg.mod
+         17,408 100%  395.35kB/s    0:00:00           17,408 100%  395.35kB/s    0:00:00 (xfr#238, to-chk=83/330)
+grub2/i386-pc/tar.mod
+          3,308 100%   75.13kB/s    0:00:00            3,308 100%   75.13kB/s    0:00:00 (xfr#239, to-chk=82/330)
+grub2/i386-pc/terminal.lst
+            202 100%    4.59kB/s    0:00:00              202 100%    4.59kB/s    0:00:00 (xfr#240, to-chk=81/330)
+grub2/i386-pc/terminal.mod
+          4,340 100%   96.32kB/s    0:00:00            4,340 100%   96.32kB/s    0:00:00 (xfr#241, to-chk=80/330)
+grub2/i386-pc/terminfo.mod
+         11,908 100%  264.29kB/s    0:00:00           11,908 100%  264.29kB/s    0:00:00 (xfr#242, to-chk=79/330)
+grub2/i386-pc/test.mod
+          5,112 100%  113.46kB/s    0:00:00            5,112 100%  113.46kB/s    0:00:00 (xfr#243, to-chk=78/330)
+grub2/i386-pc/test_blockarg.mod
+          1,340 100%   29.74kB/s    0:00:00            1,340 100%   29.74kB/s    0:00:00 (xfr#244, to-chk=77/330)
+grub2/i386-pc/testload.mod
+          2,728 100%   59.20kB/s    0:00:00            2,728 100%   59.20kB/s    0:00:00 (xfr#245, to-chk=76/330)
+grub2/i386-pc/testspeed.mod
+          2,308 100%   50.09kB/s    0:00:00            2,308 100%   50.09kB/s    0:00:00 (xfr#246, to-chk=75/330)
+grub2/i386-pc/tftp.mod
+          5,864 100%  127.26kB/s    0:00:00            5,864 100%  127.26kB/s    0:00:00 (xfr#247, to-chk=74/330)
+grub2/i386-pc/tga.mod
+          4,416 100%   95.83kB/s    0:00:00            4,416 100%   95.83kB/s    0:00:00 (xfr#248, to-chk=73/330)
+grub2/i386-pc/time.mod
+          1,508 100%   32.01kB/s    0:00:00            1,508 100%   32.01kB/s    0:00:00 (xfr#249, to-chk=72/330)
+grub2/i386-pc/tr.mod
+          2,392 100%   50.78kB/s    0:00:00            2,392 100%   50.78kB/s    0:00:00 (xfr#250, to-chk=71/330)
+grub2/i386-pc/trig.mod
+          1,752 100%   37.19kB/s    0:00:00            1,752 100%   37.19kB/s    0:00:00 (xfr#251, to-chk=70/330)
+grub2/i386-pc/true.mod
+          1,204 100%   25.56kB/s    0:00:00            1,204 100%   25.56kB/s    0:00:00 (xfr#252, to-chk=69/330)
+grub2/i386-pc/truecrypt.mod
+          3,548 100%   73.72kB/s    0:00:00            3,548 100%   73.72kB/s    0:00:00 (xfr#253, to-chk=68/330)
+grub2/i386-pc/udf.mod
+          7,768 100%  161.40kB/s    0:00:00            7,768 100%  161.40kB/s    0:00:00 (xfr#254, to-chk=67/330)
+grub2/i386-pc/ufs1.mod
+          5,448 100%  113.20kB/s    0:00:00            5,448 100%  113.20kB/s    0:00:00 (xfr#255, to-chk=66/330)
+grub2/i386-pc/ufs1_be.mod
+          5,888 100%  122.34kB/s    0:00:00            5,888 100%  122.34kB/s    0:00:00 (xfr#256, to-chk=65/330)
+grub2/i386-pc/ufs2.mod
+          5,504 100%  111.98kB/s    0:00:00            5,504 100%  111.98kB/s    0:00:00 (xfr#257, to-chk=64/330)
+grub2/i386-pc/uhci.mod
+          6,660 100%  135.50kB/s    0:00:00            6,660 100%  135.50kB/s    0:00:00 (xfr#258, to-chk=63/330)
+grub2/i386-pc/usb.mod
+         10,508 100%  213.79kB/s    0:00:00           10,508 100%  213.79kB/s    0:00:00 (xfr#259, to-chk=62/330)
+grub2/i386-pc/usb_keyboard.mod
+          3,848 100%   78.29kB/s    0:00:00            3,848 100%   78.29kB/s    0:00:00 (xfr#260, to-chk=61/330)
+grub2/i386-pc/usbms.mod
+          7,096 100%  141.42kB/s    0:00:00            7,096 100%  141.42kB/s    0:00:00 (xfr#261, to-chk=60/330)
+grub2/i386-pc/usbserial_common.mod
+          2,064 100%   41.14kB/s    0:00:00            2,064 100%   41.14kB/s    0:00:00 (xfr#262, to-chk=59/330)
+grub2/i386-pc/usbserial_ftdi.mod
+          2,348 100%   46.80kB/s    0:00:00            2,348 100%   46.80kB/s    0:00:00 (xfr#263, to-chk=58/330)
+grub2/i386-pc/usbserial_pl2303.mod
+          2,692 100%   53.65kB/s    0:00:00            2,692 100%   53.65kB/s    0:00:00 (xfr#264, to-chk=57/330)
+grub2/i386-pc/usbserial_usbdebug.mod
+          1,536 100%   30.00kB/s    0:00:00            1,536 100%   30.00kB/s    0:00:00 (xfr#265, to-chk=56/330)
+grub2/i386-pc/usbtest.mod
+          3,608 100%   70.47kB/s    0:00:00            3,608 100%   70.47kB/s    0:00:00 (xfr#266, to-chk=55/330)
+grub2/i386-pc/vbe.mod
+          9,812 100%  191.64kB/s    0:00:00            9,812 100%  191.64kB/s    0:00:00 (xfr#267, to-chk=54/330)
+grub2/i386-pc/verify.mod
+         11,860 100%  227.10kB/s    0:00:00           11,860 100%  227.10kB/s    0:00:00 (xfr#268, to-chk=53/330)
+grub2/i386-pc/vga.mod
+          5,036 100%   96.43kB/s    0:00:00            5,036 100%   96.43kB/s    0:00:00 (xfr#269, to-chk=52/330)
+grub2/i386-pc/vga_text.mod
+          2,140 100%   40.98kB/s    0:00:00            2,140 100%   40.98kB/s    0:00:00 (xfr#270, to-chk=51/330)
+grub2/i386-pc/video.lst
+             33 100%    0.63kB/s    0:00:00               33 100%    0.63kB/s    0:00:00 (xfr#271, to-chk=50/330)
+grub2/i386-pc/video.mod
+          6,148 100%  117.72kB/s    0:00:00            6,148 100%  115.46kB/s    0:00:00 (xfr#272, to-chk=49/330)
+grub2/i386-pc/video_bochs.mod
+          5,700 100%  107.05kB/s    0:00:00            5,700 100%  107.05kB/s    0:00:00 (xfr#273, to-chk=48/330)
+grub2/i386-pc/video_cirrus.mod
+          5,980 100%  112.30kB/s    0:00:00            5,980 100%  112.30kB/s    0:00:00 (xfr#274, to-chk=47/330)
+grub2/i386-pc/video_colors.mod
+          5,672 100%  106.52kB/s    0:00:00            5,672 100%  106.52kB/s    0:00:00 (xfr#275, to-chk=46/330)
+grub2/i386-pc/video_fb.mod
+         21,808 100%  409.56kB/s    0:00:00           21,808 100%  409.56kB/s    0:00:00 (xfr#276, to-chk=45/330)
+grub2/i386-pc/videoinfo.mod
+          3,980 100%   74.74kB/s    0:00:00            3,980 100%   74.74kB/s    0:00:00 (xfr#277, to-chk=44/330)
+grub2/i386-pc/videotest.mod
+          4,224 100%   79.33kB/s    0:00:00            4,224 100%   79.33kB/s    0:00:00 (xfr#278, to-chk=43/330)
+grub2/i386-pc/videotest_checksum.mod
+          2,384 100%   43.93kB/s    0:00:00            2,384 100%   43.93kB/s    0:00:00 (xfr#279, to-chk=42/330)
+grub2/i386-pc/xfs.mod
+          7,348 100%  135.39kB/s    0:00:00            7,348 100%  135.39kB/s    0:00:00 (xfr#280, to-chk=41/330)
+grub2/i386-pc/xnu.mod
+         27,088 100%  499.12kB/s    0:00:00           27,088 100%  499.12kB/s    0:00:00 (xfr#281, to-chk=40/330)
+grub2/i386-pc/xnu_uuid.mod
+          2,136 100%   39.36kB/s    0:00:00            2,136 100%   39.36kB/s    0:00:00 (xfr#282, to-chk=39/330)
+grub2/i386-pc/xnu_uuid_test.mod
+          2,016 100%   36.46kB/s    0:00:00            2,016 100%   36.46kB/s    0:00:00 (xfr#283, to-chk=38/330)
+grub2/i386-pc/xzio.mod
+         15,676 100%  283.49kB/s    0:00:00           15,676 100%  283.49kB/s    0:00:00 (xfr#284, to-chk=37/330)
+grub2/i386-pc/zfs.mod
+         32,768  83%   71.91kB/s    0:00:00           39,332 100%   86.31kB/s    0:00:00 (xfr#285, to-chk=36/330)
+grub2/i386-pc/zfscrypt.mod
+          5,520 100%   12.09kB/s    0:00:00            5,520 100%   12.09kB/s    0:00:00 (xfr#286, to-chk=35/330)
+grub2/i386-pc/zfsinfo.mod
+          6,596 100%   14.41kB/s    0:00:00            6,596 100%   14.41kB/s    0:00:00 (xfr#287, to-chk=34/330)
+grub2/locale/
+grub2/locale/ast.mo
+         18,327 100%   21.38kB/s    0:00:00           18,327 100%   21.38kB/s    0:00:00 (xfr#288, to-chk=33/330)
+grub2/locale/ca.mo
+         32,768  30%   38.19kB/s    0:00:01          106,164 100%  123.42kB/s    0:00:00 (xfr#289, to-chk=32/330)
+grub2/locale/da.mo
+         32,768  33%   38.05kB/s    0:00:01           96,468 100%  111.88kB/s    0:00:00 (xfr#290, to-chk=31/330)
+grub2/locale/de.mo
+         32,768  31%   37.96kB/s    0:00:01          105,438 100%  122.00kB/s    0:00:00 (xfr#291, to-chk=30/330)
+grub2/locale/de@hebrew.mo
+         32,768  20%   37.87kB/s    0:00:03          156,861 100%  180.86kB/s    0:00:00 (xfr#292, to-chk=29/330)
+grub2/locale/de_CH.mo
+         32,768  31%   37.74kB/s    0:00:01          105,444 100%  121.29kB/s    0:00:00 (xfr#293, to-chk=28/330)
+grub2/locale/en@arabic.mo
+         32,768  21%   37.65kB/s    0:00:03          155,361 100%  178.07kB/s    0:00:00 (xfr#294, to-chk=27/330)
+grub2/locale/en@cyrillic.mo
+         32,768  22%   37.51kB/s    0:00:03          146,764 100%  167.63kB/s    0:00:00 (xfr#295, to-chk=26/330)
+grub2/locale/en@greek.mo
+         32,768  22%   37.30kB/s    0:00:03          146,761 100%  166.65kB/s    0:00:00 (xfr#296, to-chk=25/330)
+grub2/locale/en@hebrew.mo
+         32,768  19%   37.12kB/s    0:00:03          168,180 100%  190.31kB/s    0:00:00 (xfr#297, to-chk=24/330)
+grub2/locale/en@piglatin.mo
+         32,768  24%   36.99kB/s    0:00:02          135,170 100%  152.25kB/s    0:00:00 (xfr#298, to-chk=23/330)
+grub2/locale/en@quot.mo
+         32,768  27%   36.78kB/s    0:00:02          119,356 100%  133.98kB/s    0:00:00 (xfr#299, to-chk=22/330)
+grub2/locale/eo.mo
+         32,768  74%   36.74kB/s    0:00:00           44,138 100%   49.49kB/s    0:00:00 (xfr#300, to-chk=21/330)
+grub2/locale/es.mo
+         32,768  29%   36.66kB/s    0:00:02          110,349 100%  123.16kB/s    0:00:00 (xfr#301, to-chk=20/330)
+grub2/locale/fi.mo
+         32,768  30%   36.57kB/s    0:00:02          107,478 100%  119.82kB/s    0:00:00 (xfr#302, to-chk=19/330)
+grub2/locale/fr.mo
+         32,768  25%   36.49kB/s    0:00:02          126,738 100%  140.80kB/s    0:00:00 (xfr#303, to-chk=18/330)
+grub2/locale/gl.mo
+         32,768  30%   36.41kB/s    0:00:02          109,029 100%  120.99kB/s    0:00:00 (xfr#304, to-chk=17/330)
+grub2/locale/hu.mo
+         32,768  95%   36.32kB/s    0:00:00           34,205 100%   37.92kB/s    0:00:00 (xfr#305, to-chk=16/330)
+grub2/locale/id.mo
+         17,816 100%   19.73kB/s    0:00:00           17,816 100%   19.73kB/s    0:00:00 (xfr#306, to-chk=15/330)
+grub2/locale/it.mo
+         32,768  31%   36.28kB/s    0:00:01          105,131 100%  116.27kB/s    0:00:00 (xfr#307, to-chk=14/330)
+grub2/locale/ja.mo
+         23,262 100%   25.70kB/s    0:00:00           23,262 100%   25.70kB/s    0:00:00 (xfr#308, to-chk=13/330)
+grub2/locale/lt.mo
+         32,768  80%   36.20kB/s    0:00:00           40,470 100%   44.71kB/s    0:00:00 (xfr#309, to-chk=12/330)
+grub2/locale/nl.mo
+         32,768  30%   36.16kB/s    0:00:02           98,304  92%   87.67kB/s    0:00:00          105,883 100%   94.34kB/s    0:00:01 (xfr#310, to-chk=11/330)
+grub2/locale/pa.mo
+         32,768  50%   31.25MB/s    0:00:00           65,366 100%   62.34MB/s    0:00:00 (xfr#311, to-chk=10/330)
+grub2/locale/pl.mo
+         32,768  30%   15.62MB/s    0:00:00          107,635 100%   34.22MB/s    0:00:00 (xfr#312, to-chk=9/330)
+grub2/locale/pt_BR.mo
+         32,768  49%    7.81MB/s    0:00:00           66,071 100%   12.60MB/s    0:00:00 (xfr#313, to-chk=8/330)
+grub2/locale/ru.mo
+         32,768  23%    5.21MB/s    0:00:00          138,136 100%   18.82MB/s    0:00:00 (xfr#314, to-chk=7/330)
+grub2/locale/sl.mo
+         32,768  33%    3.47MB/s    0:00:00           99,210 100%   10.51MB/s    0:00:00 (xfr#315, to-chk=6/330)
+grub2/locale/sv.mo
+         32,768  90%    3.12MB/s    0:00:00           36,235 100%    3.46MB/s    0:00:00 (xfr#316, to-chk=5/330)
+grub2/locale/tr.mo
+         32,768  63%    2.84MB/s    0:00:00           51,842 100%    4.49MB/s    0:00:00 (xfr#317, to-chk=4/330)
+grub2/locale/uk.mo
+         32,768  20%    2.23MB/s    0:00:00          160,269 100%    9.55MB/s    0:00:00 (xfr#318, to-chk=3/330)
+grub2/locale/vi.mo
+         32,768  28%    1.84MB/s    0:00:00          116,613 100%    6.18MB/s    0:00:00 (xfr#319, to-chk=2/330)
+grub2/locale/zh_CN.mo
+         30,123 100%    1.51MB/s    0:00:00           30,123 100%    1.51MB/s    0:00:00 (xfr#320, to-chk=1/330)
+grub2/locale/zh_TW.mo
+         30,882 100%    1.47MB/s    0:00:00           30,882 100%    1.47MB/s    0:00:00 (xfr#321, to-chk=0/330)
+
+sent 140,892,130 bytes  received 6,166 bytes  40,256,656.00 bytes/sec
+total size is 140,836,728  speedup is 1.00
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# umount /boot && mount /dev/md0 /boot
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mdadm -a /dev/md0 /dev/sda1
+mdadm: hot added /dev/sda1
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sdb2[1]
+      4193216 blocks [2/1] [_U]
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# lsblk 
+NAME            MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sdb               8:16   0    5G  0 disk  
+├─sdb2            8:18   0    4G  0 part  
+│ └─md1           9:1    0    4G  0 raid1 
+└─sdb1            8:17   0    1G  0 part  
+  └─md0           9:0    0 1024M  0 raid1 /boot
+sda               8:0    0    5G  0 disk  
+├─sda2            8:2    0    4G  0 part  
+│ ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│ └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sda1            8:1    0    1G  0 part  
+  └─md0           9:0    0 1024M  0 raid1 /boot
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# pvcreate /dev/md1
+  Physical volume "/dev/md1" successfully created.
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# pvdisplay 
+  --- Physical volume ---
+  PV Name               /dev/sda2
+  VG Name               centos
+  PV Size               <4,00 GiB / not usable 3,00 MiB
+  Allocatable           yes (but full)
+  PE Size               4,00 MiB
+  Total PE              1023
+  Free PE               0
+  Allocated PE          1023
+  PV UUID               l7tt0h-dkx8-fk0m-t6Ko-oW9Y-f1iM-5g6LQe
+   
+  "/dev/md1" is a new physical volume of "<4,00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/md1
+  VG Name               
+  PV Size               <4,00 GiB
+  Allocatable           NO
+  PE Size               0   
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               eNrk9J-jqbx-gTAV-9rau-usg3-XzXQ-3csSaL
+   
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# vgdisplay 
+  --- Volume group ---
+  VG Name               centos
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               <4,00 GiB
+  PE Size               4,00 MiB
+  Total PE              1023
+  Alloc PE / Size       1023 / <4,00 GiB
+  Free  PE / Size       0 / 0   
+  VG UUID               JRfXyW-dc7a-l59o-IVn5-nGEX-8jjW-2qEDDk
+   
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# vgextend centos /dev/md1
+  Volume group "centos" successfully extended
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# pvmove /dev/sda2 /dev/md1
+  /dev/sda2: Moved: 0,20%
+  /dev/sda2: Moved: 12,51%
+  /dev/sda2: Moved: 35,19%
+  /dev/sda2: Moved: 59,24%
+  /dev/sda2: Moved: 82,21%
+  /dev/sda2: Moved: 100,00%
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# vgreduce centos /dev/sda2
+  Removed "/dev/sda2" from volume group "centos"
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mdadm -a /dev/md1 /dev/sda2
+mdadm: hot added /dev/sda2
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat .p[K[K/proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [==>..................]  recovery = 12.2% (512960/4193216) finish=0.8min speed=73280K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [====>................]  recovery = 20.0% (841728/4193216) finish=0.7min speed=70144K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [=======>.............]  recovery = 38.3% (1609088/4193216) finish=0.6min speed=69960K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [==========>..........]  recovery = 51.0% (2141568/4193216) finish=0.4min speed=69082K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [==============>......]  recovery = 72.8% (3055808/4193216) finish=0.2min speed=65858K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [===============>.....]  recovery = 78.1% (3278720/4193216) finish=0.2min speed=60749K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [================>....]  recovery = 80.5% (3378432/4193216) finish=0.2min speed=49144K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[2] sdb2[1]
+      4193216 blocks [2/1] [_U]
+      [==================>..]  recovery = 91.4% (3835520/4193216) finish=0.1min speed=31113K/sec
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /proc/mdstat 
+Personalities : [raid1] 
+md1 : active raid1 sda2[0] sdb2[1]
+      4193216 blocks [2/2] [UU]
+      
+md0 : active raid1 sda1[0] sdb1[1]
+      1048512 blocks [2/2] [UU]
+      
+unused devices: <none>
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mdadm --detail --scan > /etc/mdadm.conf 
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /etc/mdadm.conf 
+ARRAY /dev/md0 metadata=0.90 UUID=7580a13e:d1cb2780:f6abbe99:c89486da
+ARRAY /dev/md1 metadata=0.90 UUID=c3401c79:54cfb1ed:f6abbe99:c89486da
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# ls -l /dev/disk/by-uuid |grep md >> /etc/fstab && nano /etc/fstab
+[?1049h[1;45r(B[m[4l[?7h[?12l[?25h[?1h=[?1h=[?1h=[39;49m[39;49m(B[m[H[2J(B[0;7m  GNU nano 2.3.1                                                         Файл: /etc/fstab                                                                                                                         [4;1H(B[m#[5d# /etc/fstab[6d# Created by anaconda on Fri Feb 14 11:07:30 2020[7d#[8d# Accessible filesystems, by reference, are maintained under '/dev/disk'[9d# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info[10d#[11d/dev/mapper/centos-root /[11;49Hxfs     defaults[11;73H0 0[12dUUID=5428d51f-30e3-4a40-b7c5-c122c0f86729 /boot[12;67Hxfs     defaults[12;91H0 0[13d/dev/mapper/centos-swap swap[13;49Hswap    defaults[13;73H0 0[14dlrwxrwxrwx 1 root root  9 фев 14 12:33 4fc11804-4431-463b-8688-e62ac9806a96 -> ../../md0[43;95H(B[0;7m[ Прочитано 12 строк ][44d^G(B[m Помощь[44;36H(B[0;7m^O(B[m Записать[44;71H(B[0;7m^R(B[m ЧитФайл[44;106H(B[0;7m^Y(B[m ПредCтр[44;141H(B[0;7m^K(B[m Вырезать[44;176H(B[0;7m^C(B[m ТекПозиц[45d(B[0;7m^X(B[m Выход[45;36H(B[0;7m^J(B[m Выровнять[45;71H(B[0;7m^W(B[m Поиск[45;106H(B[0;7m^V(B[m СледCтр[45;141H(B[0;7m^U(B[m ОтмВырезк[45;176H(B[0;7m^T(B[m Словарь[3d[4d[5d[6d[7d[8d[9d[10d[11d[12d[13d[14d[A[A[1;202H(B[0;7mИзменён[12d(B[m#UUID=5428d51f-30e3-4a40-b7c5-c122c0f86729 /boot[12;67H xfs     defaults	   0 0#[13d7[13;42r8M[1;45r[14;1H[AUUO ID=4fc11804-4431-463b-8688-e62ac9806a96[43d[K[13;42H[Z [Z       [Z [Z       [Z [Z       [Z [Z       	 	       [K[13;43r[43;1H
+[1;45r[12;95H[Z[Z[Z[Z[Z[Z9[1P[Z[1P[1P[1P[1P[1P[1P[1P[Z[1P2[Z[1P[1P[1P[1P[1P[1P[1P[1P[Z[1P[1P[1P[1P[1P[1P[1P[1P[Z[1P[1P[1P[1P[1P[1P[1P[1P	[1P[1P[1P4fc11804-4431-463b-8688-e62ac9806a96 /boot[56G   [12;68Hxfs     defaults[12;92H0 0[12;43H[Z[Z[Z[Z	[1P[13d[14d#lrwxrwxrwx 1 root root  9 фев 14 12:33 4fc11804-4431-463b-8688-e62ac9806a96 -> ../../md0#[A[A[A[12d[13d[14d[15d[43d(B[0;7mСохранить изменённый буфер? (ИНАЧЕ ВСЕ ИЗМЕНЕНИЯ БУДУТ ПОТЕРЯНЫ)                                                                                                                                                  [44;1H Y(B[m Да[K[45d(B[0;7m N(B[m Нет  [45;17H(B[0;7m^C(B[m Отмена[K[43;65H(B[0;7mИмя файла для записи: /etc/fstab                                [44d^G(B[m Помощь[44;53H(B[0;7mM-D(B[m Формат DOS[44;105H(B[0;7mM-A(B[m Доп. в начало[44;157H(B[0;7mM-B(B[m Резерв. копия[45d(B[0;7m^C(B[m Отмена	         [45;53H(B[0;7mM-M(B[m Формат Mac[45;105H(B[0;7mM-P(B[m Доп. в конец[43;33H[44d[39;49m(B[m[J[1;202H(B[0;7m       [43;94H(B[m[1K (B[0;7m[ Записано 12 строк ](B[m[K[45;210H[45;1H[?1049l[?1l>]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /etc/fstab 
+
+#
+# /etc/fstab
+# Created by anaconda on Fri Feb 14 11:07:30 2020
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=4fc11804-4431-463b-8688-e62ac9806a96 /boot                   xfs     defaults        0 0
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+#lrwxrwxrwx 1 root root  9 фев 14 12:33 4fc11804-4431-463b-8688-e62ac9806a96 -> ../../md0
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# rm /boot/[K[K[K[K[K[K[K[K[Kuna[Ka
+unalias  uname    
+[root@centos-7-raid vagrant]# uname -a
+Linux centos-7-raid 5.5.3-1.el7.elrepo.x86_64 #1 SMP Tue Feb 11 09:42:46 EST 2020 x86_64 x86_64 x86_64 GNU/Linux
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# rm /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img [K.bak
+rm: удалить обычный файл «/boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img»? n
+rm: невозможно удалить «/boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img.bak»: Нет такого файла или каталога
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# cat /etc/bo[K[K[K[K[K[K[K[K[K[K[Kls /boot/
+config-3.10.0-1062.12.1.el7.x86_64  [0m[38;5;27mgrub2[0m                                                    [38;5;9msymvers-3.10.0-1062.12.1.el7.x86_64.gz[0m  [38;5;34mvmlinuz-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad[0m
+config-5.5.3-1.el7.elrepo.x86_64    initramfs-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad.img  [38;5;9msymvers-5.5.3-1.el7.elrepo.x86_64.gz[0m    [38;5;34mvmlinuz-3.10.0-1062.12.1.el7.x86_64[0m
+[38;5;27mefi[0m                                 initramfs-3.10.0-1062.12.1.el7.x86_64.img                System.map-3.10.0-1062.12.1.el7.x86_64  [38;5;34mvmlinuz-5.5.3-1.el7.elrepo.x86_64[0m
+[38;5;27mgrub[0m                                initramfs-5.5.3-1.el7.elrepo.x86_64.img                  System.map-5.5.3-1.el7.elrepo.x86_64
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mv /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img [K./[Kbak
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# mv /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img.bak[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cls /boot/[K
+config-3.10.0-1062.12.1.el7.x86_64  [0m[38;5;27mgrub2[0m                                                    [38;5;9msymvers-3.10.0-1062.12.1.el7.x86_64.gz[0m  [38;5;34mvmlinuz-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad[0m
+config-5.5.3-1.el7.elrepo.x86_64    initramfs-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad.img  [38;5;9msymvers-5.5.3-1.el7.elrepo.x86_64.gz[0m    [38;5;34mvmlinuz-3.10.0-1062.12.1.el7.x86_64[0m
+[38;5;27mefi[0m                                 initramfs-3.10.0-1062.12.1.el7.x86_64.img                System.map-3.10.0-1062.12.1.el7.x86_64  [38;5;34mvmlinuz-5.5.3-1.el7.elrepo.x86_64[0m
+[38;5;27mgrub[0m                                initramfs-5.5.3-1.el7.elrepo.x86_64.img.bak              System.map-5.5.3-1.el7.elrepo.x86_64
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# dracut /boot/initramfs-$(uname -r).img $(uname -r)
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# nano /etc/default/grub 
+[?1049h[1;45r(B[m[4l[?7h[?12l[?25h[?1h=[?1h=[?1h=[39;49m[39;49m(B[m[H[2J(B[0;7m  GNU nano 2.3.1                                                       Файл: /etc/default/grub                                                                                                                    [3;1H(B[mGRUB_TIMEOUT=5[4dGRUB_DISTRIBUTOR="$(sed 's, release .*$,,g' /etc/system-release)"[5dGRUB_DEFAULT=saved[6dGRUB_DISABLE_SUBMENU=true[7dGRUB_TERMINAL_OUTPUT="console"[8dGRUB_CMDLINE_LINUX="ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[9dGRUB_DISABLE_RECOVERY="true"[43;95H(B[0;7m[ Прочитано 7 строк ][44d^G(B[m Помощь[44;36H(B[0;7m^O(B[m Записать[44;71H(B[0;7m^R(B[m ЧитФайл[44;106H(B[0;7m^Y(B[m ПредCтр[44;141H(B[0;7m^K(B[m Вырезать[44;176H(B[0;7m^C(B[m ТекПозиц[45d(B[0;7m^X(B[m Выход[45;36H(B[0;7m^J(B[m Выровнять[45;71H(B[0;7m^W(B[m Поиск[45;106H(B[0;7m^V(B[m СледCтр[45;141H(B[0;7m^U(B[m ОтмВырезк[45;176H(B[0;7m^T(B[m Словарь[3d[4d[5d[6d[7d[8dGRUB_CM	LINE_LI	UX="[1;202H(B[0;7mИзменён[8;21H(B[mripv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[43d[K[8;22Hdipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;23H.ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;24Haipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;25Huipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;26Htipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;27Hoipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;28H ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;29Hripv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;30Hdipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;31H.ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;32Haipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;33Huipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;34Htipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;35Hpipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;36H[1Poipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;36H=ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;37H1ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;38H ipv6.disable=1 net.ifnames=0 biosdevname=0 crashkernel=auto spectre_v2=retpoline rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet"[8;39H[43d(B[0;7mСохранить изменённый буфер? (ИНАЧЕ ВСЕ ИЗМЕНЕНИЯ БУДУТ ПОТЕРЯНЫ)                                                                                                                                                  [44;1H Y(B[m Да[K[45d(B[0;7m N(B[m Нет  [45;17H(B[0;7m^C(B[m Отмена[K[43;65H(B[0;7mИмя файла для записи: /etc/default/grub                         [44d^G(B[m Помощь[44;53H(B[0;7mM-D(B[m Формат DOS[44;105H(B[0;7mM-A(B[m Доп. в начало[44;157H(B[0;7mM-B(B[m Резерв. копия[45d(B[0;7m^C(B[m Отмена	         [45;53H(B[0;7mM-M(B[m Формат Mac[45;105H(B[0;7mM-P(B[m Доп. в конец[43;40H[44d[39;49m(B[m[J[1;202H(B[0;7m       [43;95H(B[m[1K (B[0;7m[ Записано 7 строк ](B[m[K[45;210H[45;1H[?1049l[?1l>]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# grub2-mkconfig -o /boot/grub2/grub.cfg
+Generating grub configuration file ...
+Found linux image: /boot/vmlinuz-5.5.3-1.el7.elrepo.x86_64
+Found initrd image: /boot/initramfs-5.5.3-1.el7.elrepo.x86_64.img
+Found linux image: /boot/vmlinuz-3.10.0-1062.12.1.el7.x86_64
+Found initrd image: /boot/initramfs-3.10.0-1062.12.1.el7.x86_64.img
+Found linux image: /boot/vmlinuz-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad
+Found initrd image: /boot/initramfs-0-rescue-dd03c4d192a3d644aef51fa8a54b5dad.img
+done
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# lsblk 
+NAME              MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sdb                 8:16   0    5G  0 disk  
+├─sdb2              8:18   0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sdb1              8:17   0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+sda                 8:0    0    5G  0 disk  
+├─sda2              8:2    0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sda1              8:1    0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# grub2-install /dev/sda && grub2-install /dev/sdb
+Installing for i386-pc platform.
+Установка завершена. Ошибок нет.
+Installing for i386-pc platform.
+Установка завершена. Ошибок нет.
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# grub2-set-default 0
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# reboot
+Connection to 127.0.0.1 closed by remote host.
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp/1[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp/1[00m$ vagrant ssh
+Last login: Fri Feb 14 12:32:12 2020 from 10.0.2.2
+]0;vagrant@centos-7-raid:~[?1034h[vagrant@centos-7-raid ~]$ lsblk 
+NAME              MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sdb                 8:16   0    5G  0 disk  
+├─sdb2              8:18   0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sdb1              8:17   0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+sda                 8:0    0    5G  0 disk  
+├─sda2              8:2    0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sda1              8:1    0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+]0;vagrant@centos-7-raid:~[vagrant@centos-7-raid ~]$ su
+Пароль: 
+]0;vagrant@centos-7-raid:/home/vagrant[?1034h[root@centos-7-raid vagrant]# fdik[Ksk -l
+
+Disk /dev/sda: 5368 MB, 5368709120 bytes, 10485760 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0x000a5a03
+
+Устр-во Загр     Начало       Конец       Блоки   Id  Система
+/dev/sda1   *        2048     2099199     1048576   83  Linux
+/dev/sda2         2099200    10485759     4193280   8e  Linux LVM
+
+Disk /dev/sdb: 5400 MB, 5400166400 bytes, 10547200 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0x00000000
+
+Устр-во Загр     Начало       Конец       Блоки   Id  Система
+/dev/sdb1   *        2048     2099199     1048576   83  Linux
+/dev/sdb2         2099200    10485759     4193280   8e  Linux LVM
+
+Disk /dev/md1: 4293 MB, 4293853184 bytes, 8386432 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/md0: 1073 MB, 1073676288 bytes, 2097024 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/mapper/centos-root: 3753 MB, 3753902080 bytes, 7331840 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/mapper/centos-swap: 536 MB, 536870912 bytes, 1048576 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# rapte[K[K[K[K[Kpae[Krted -l
+Модель: ATA VBOX HARDDISK (scsi)
+Диск /dev/sda: 5369MB
+Размер сектора (логич./физич.): 512B/512B
+Таблица разделов: msdos
+Disk Flags: 
+
+Номер  Начало  Конец   Размер  Тип      Файловая система  Флаги
+ 1     1049kB  1075MB  1074MB  primary  xfs               загрузочный
+ 2     1075MB  5369MB  4294MB  primary                    lvm
+
+
+Модель: ATA VBOX HARDDISK (scsi)
+Диск /dev/sdb: 5400MB
+Размер сектора (логич./физич.): 512B/512B
+Таблица разделов: msdos
+Disk Flags: 
+
+Номер  Начало  Конец   Размер  Тип      Файловая система  Флаги
+ 1     1049kB  1075MB  1074MB  primary  xfs               загрузочный
+ 2     1075MB  5369MB  4294MB  primary                    lvm
+
+
+Модель: Linux device-mapper (linear) (dm)
+Диск /dev/mapper/centos-swap: 537MB
+Размер сектора (логич./физич.): 512B/512B
+Таблица разделов: loop
+Disk Flags: 
+
+Номер  Начало  Конец  Размер  Файловая система  Флаги
+ 1     0,00B   537MB  537MB   linux-swap(v1)
+
+
+Модель: Linux device-mapper (linear) (dm)
+Диск /dev/mapper/centos-root: 3754MB
+Размер сектора (логич./физич.): 512B/512B
+Таблица разделов: loop
+Disk Flags: 
+
+Номер  Начало  Конец   Размер  Файловая система  Флаги
+ 1     0,00B   3754MB  3754MB  xfs
+
+
+Модель: Linux Software RAID Array (md)
+Диск /dev/md0: 1074MB
+Размер сектора (логич./физич.): 512B/512B
+Таблица разделов: loop
+Disk Flags: 
+
+Номер  Начало  Конец   Размер  Файловая система  Флаги
+ 1     0,00B   1074MB  1074MB  xfs
+
+
+Ошибка: /dev/md1: метка диска не определена
+                                                                          Модель: Linux Software RAID Array (md)
+Диск /dev/md1: 4294MB
+Размер сектора (логич./физич.): 512B/512B
+Таблица разделов: unknown
+Disk Flags: 
+
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# lsblk 
+NAME              MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sdb                 8:16   0    5G  0 disk  
+├─sdb2              8:18   0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sdb1              8:17   0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+sda                 8:0    0    5G  0 disk  
+├─sda2              8:2    0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sda1              8:1    0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+]0;vagrant@centos-7-raid:/home/vagrant[root@centos-7-raid vagrant]# exit
+exit
+]0;vagrant@centos-7-raid:~[vagrant@centos-7-raid ~]$ exit
+logout
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp/1[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp/1[00m$ vah[Kgrant halt
+[1m==> centos-7-raid: Attempting graceful shutdown of VM...[0m
+]0;xsane@xsane-OMEN: ~/otus-homework/temp/1[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp/1[00m$ vagrant up
+[0mBringing machine 'centos-7-raid' up with 'virtualbox' provider...[0m
+[1m==> centos-7-raid: Clearing any previously set forwarded ports...[0m
+[1m==> centos-7-raid: Clearing any previously set network interfaces...[0m
+[1m==> centos-7-raid: Preparing network interfaces based on configuration...[0m
+[0m    centos-7-raid: Adapter 1: nat[0m
+[0m    centos-7-raid: Adapter 2: hostonly[0m
+[1m==> centos-7-raid: Forwarding ports...[0m
+[0m    centos-7-raid: 22 (guest) => 2222 (host) (adapter 1)[0m
+[1m==> centos-7-raid: Running 'pre-boot' VM customizations...[0m
+[1m==> centos-7-raid: Booting VM...[0m
+[1m==> centos-7-raid: Waiting for machine to boot. This may take a few minutes...[0m
+[0m    centos-7-raid: SSH address: 127.0.0.1:2222[0m
+[0m    centos-7-raid: SSH username: vagrant[0m
+[0m    centos-7-raid: SSH auth method: private key[0m
+[1m==> centos-7-raid: Machine booted and ready![0m
+[1m==> centos-7-raid: Checking for guest additions in VM...[0m
+[0m    centos-7-raid: No guest additions were detected on the base box for this VM! Guest
+    centos-7-raid: additions are required for forwarded ports, shared folders, host only
+    centos-7-raid: networking, and more. If SSH fails on this machine, please install
+    centos-7-raid: the guest additions and repackage the box to continue.
+    centos-7-raid: 
+    centos-7-raid: This is not an error message; everything may continue to work properly,
+    centos-7-raid: in which case you may ignore this message.[0m
+[1m==> centos-7-raid: Setting hostname...[0m
+[1m==> centos-7-raid: Configuring and enabling network interfaces...[0m
+[1m==> centos-7-raid: Machine already provisioned. Run `vagrant provision` or use the `--provision`
+==> centos-7-raid: flag to force provisioning. Provisioners marked to run always will still run.[0m
+]0;xsane@xsane-OMEN: ~/otus-homework/temp/1[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp/1[00m$ vagrant ssh
+Last login: Fri Feb 14 12:45:46 2020 from 10.0.2.2
+]0;vagrant@centos-7-raid:~[?1034h[vagrant@centos-7-raid ~]$ lsblk 
+NAME              MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sdb                 8:16   0    5G  0 disk  
+├─sdb2              8:18   0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sdb1              8:17   0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+sda                 8:0    0    5G  0 disk  
+├─sda2              8:2    0    4G  0 part  
+│ └─md1             9:1    0    4G  0 raid1 
+│   ├─centos-swap 253:1    0  512M  0 lvm   [SWAP]
+│   └─centos-root 253:0    0  3,5G  0 lvm   /
+└─sda1              8:1    0    1G  0 part  
+  └─md0             9:0    0 1024M  0 raid1 /boot
+]0;vagrant@centos-7-raid:~[vagrant@centos-7-raid ~]$ exit
+logout
+Connection to 127.0.0.1 closed.
+]0;xsane@xsane-OMEN: ~/otus-homework/temp/1[01;32mxsane@xsane-OMEN[00m:[01;34m~/otus-homework/temp/1[00m$ exit
+
+Script done on 2020-02-14 17:48:19+0500
