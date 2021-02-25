@@ -9,5 +9,5 @@ sudo firewall-cmd --permanent --zone=public --add-service=rpc-bind
 sudo firewall-cmd --permanent --zone=public --add-port=2049/udp
 sudo firewall-cmd --reload
 mkdir -p /var/nfs/upload && chmod -R 777 /var/nfs
-echo '/var/nfs/upload 192.168.50.0/24(rw,sync,no_root_squash,no_all_squash)' | sudo tee -a /etc/exports > /dev/null
+echo '/var/nfs/upload 192.168.50.0/24(rw,sync,root_squash,no_all_squash)' | sudo tee -a /etc/exports > /dev/null
 sudo exportfs -r
