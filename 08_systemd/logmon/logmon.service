@@ -1,0 +1,5 @@
+[Unit]
+Description=logmon service
+[Service]
+EnvironmentFile=/etc/sysconfig/logmonconf
+ExecStart=/vagrant/logmon/logmon.sh $WORD $LOG

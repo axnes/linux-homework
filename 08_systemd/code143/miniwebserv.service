@@ -1,0 +1,22 @@
+[Unit]
+Description = Simple JAVA web server
+After=network.target
+
+[Service]
+User=vagrant
+NoNewPrivileges=true
+MemoryLimit=35M
+MemorySwapMax=10M
+CPUQuota=10%
+TasksMax=20
+IPAddressAllow=127.0.0.0/8
+WorkingDirectory=/vagrant/code143
+ExecStart=/usr/bin/java -jar WebServerLite.jar /home/vagrant/www/ 8080
+SuccessExitStatus=143
+Restart=always
+StartLimitInterval=90
+StartLimitBurst=5
+
+
+[Install]
+WantedBy=multi-user.target

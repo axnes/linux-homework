@@ -1,0 +1,21 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  
+  config.vm.define "centos8test" do |centos8test_config|
+    centos8test_config.vm.box = "centos/8"
+#   centos8test_config.vm.hostname = "test.test.net"
+#   centos8test_config.vm.network "private_network", ip: "10.0.9.11", :netmask => "255.255.255.0", virtualbox__intnet: "intnet1"
+
+    centos8test_config.vm.provider "virtualbox" do |vb|
+      vb.memory = "256"
+      vb.cpus = 1
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.name = "centos8_systemd_test"
+    end
+
+    centos8test_config.vm.provision "shell", path: "prepare.sh", privileged: true
+    centos8test_config.vm.provision "shell", path: "services.sh", privileged: true
+  end
+end

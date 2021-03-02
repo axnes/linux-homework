@@ -1,0 +1,4 @@
+# config for logmon systemd unit [/etc/sysconfig/logmon]
+WORD="error"
+LOG=/vagrant/logmon/testlog.log
+

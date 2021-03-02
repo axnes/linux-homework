@@ -1,0 +1,9 @@
+[Unit]
+Description=unit timer 4 logmon service
+
+[Timer]
+OnCalendar=*:*:0/30
+AccuracySec=1us
+
+[Install]
+WantedBy=multi-user.target
