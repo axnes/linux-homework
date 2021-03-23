@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  
+  config.vm.define "centos7ansible" do |centos7ansible_config|
+    centos7ansible_config.vm.box = "centos/7"
+#   centos7ansible_config.vm.hostname = "test.test.net"
+    centos7ansible_config.vm.network "private_network", ip: "10.0.10.10"
+    centos7ansible_config.vm.network :forwarded_port, guest: 8080, host: 8080
+
+    centos7ansible_config.vm.provider "virtualbox" do |vb|
+      vb.memory = "256"
+      vb.cpus = 1
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+      vb.name = "centos7_ansible_part1"
+    end
+    
+    centos7ansible_config.vm.provision "shell", inline: <<-SHELL
+    mkdir -p ~root/.ssh
+    cp ~vagrant/.ssh/auth* ~root/.ssh
+    yum install -y nano
+    sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+    setenforce 0
+  SHELL
+    centos7ansible_config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "nginx.yml"
+    end
+  end
+end

@@ -1,0 +1,35 @@
+---
+- hosts: all
+  remote_user: vagrant
+  become: yes 
+  become_user: root
+  become_method: sudo
+  vars:
+    nginx_listen_port: 8080
+  tasks:
+    - name: Add NGINX official repo
+      yum_repository:
+        name: nginx_repo1
+        description: NGINX official repo1
+        baseurl:  https://nginx.org/packages/centos/$releasever/$basearch/
+        gpgcheck: no
+    - name: Install NGINX
+      yum:
+        name: nginx
+        state: present
+    - name: Enable service NGINX
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: yes
+        masked: no
+    - name: Create NGINX config file from template
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+      notify:
+        - Start NGINX
+  handlers:
+    - name: Start NGINX
+      service:
+        name: nginx
+        state: started
